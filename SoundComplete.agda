@@ -447,4 +447,3 @@ soundcmplt L =
   ≐〈 lid 〉
     L
   qed≐
-

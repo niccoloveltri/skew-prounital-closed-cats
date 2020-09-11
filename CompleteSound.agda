@@ -321,3 +321,41 @@ soundstrcmplt {nothing}{Γ} f =
   sound-Il-1 (⊸r⋆-1 Γ (cmplt f))
   ∙ sound-⊸r⋆-1 Γ (cmplt f)
   ∙ soundcmplt f
+
+-- ==================================================================
+
+-- Since the rule uf is invertible, then the free skew closed category
+-- is left-normal
+
+jY-1 : ∀{A}{B} → I ⇒ A ⊸ B → A ⇒ B
+jY-1 f = sound (uf-1 (Il-1 (⊸r-1 (cmplt f))))
+
+jY : ∀{A}{B} → A ⇒ B → I ⇒ A ⊸ B
+jY f = f ⊸ id ∘ j
+
+left-normal₁ : ∀{A}{B} (f : I ⇒ A ⊸ B) → jY (jY-1 f) ≐ f
+left-normal₁ {A}{B} f = 
+  proof≐
+    sound (uf-1 (Il-1 (⊸r-1 (cmplt f)))) ⊸ id ∘ j
+  ≐〈 ~ (soundcmplt _) 〉
+    sound (cmplt (sound (uf-1 (Il-1 (⊸r-1 (cmplt f)))) ⊸ id ∘ j))
+  ≐〈 refl 〉
+    sound {_}{[]} (⊸r (Il (uf (scut (scut (cmplt (sound (uf-1 (Il-1 (⊸r-1 (cmplt f)))))) ax) ax))))
+  ≐〈 ≗sound≐ {_}{[]} (⊸r (Il (uf (≡-to-≗ (trans (scut-ax _) (scut-ax (cmplt (sound (uf-1 (Il-1 (⊸r-1 (cmplt f)))))))))))) 〉
+    sound {_}{[]} (⊸r (Il (uf (cmplt (sound (uf-1 (Il-1 (⊸r-1 (cmplt f)))))))))
+  ≐〈 ≗sound≐ {_}{[]} (⊸r (Il (uf (cmpltsound (uf-1 (Il-1 (⊸r-1 (cmplt f)))))))) 〉
+    sound {_}{[]} (⊸r (Il (uf (uf-1 (Il-1 (⊸r-1 (cmplt f)))))))
+  ≐〈 ≗sound≐ {_}{[]} (⊸r (Il (uf-iso (Il-1 (⊸r-1 (cmplt f)))))) 〉
+    sound {_}{[]} (⊸r (Il (Il-1 (⊸r-1 (cmplt f)))))
+  ≐〈 ≗sound≐ {_}{[]} (⊸r (Il-iso (⊸r-1 (cmplt f)))) 〉
+    sound {_}{[]} (⊸r (⊸r-1 (cmplt f)))
+  ≐〈 ≗sound≐ (⊸r-iso (cmplt f)) 〉
+    sound (cmplt f)
+  ≐〈 soundcmplt f 〉
+    f
+  qed≐
+
+left-normal₂ : ∀{A}{B} (f : A ⇒ B) → jY-1 (jY f) ≐ f
+left-normal₂ f =
+  ≗sound≐ (≡-to-≗ (trans (scut-ax (scut (cmplt f) ax)) (scut-ax (cmplt f))))
+  ∙ soundcmplt f

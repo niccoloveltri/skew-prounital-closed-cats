@@ -6,6 +6,7 @@ open import Data.List
 open import Data.Empty
 open import Data.Unit
 open import Data.Maybe
+open import Relation.Binary.PropositionalEquality hiding (_≗_)
 
 -- =======================================================================
 
@@ -35,4 +36,16 @@ not⊸ : Fma → Set
 not⊸ (` X) = ⊤
 not⊸ I = ⊤
 not⊸ (A ⊸ B) = ⊥
+
+asCxt : Stp → Cxt → Cxt
+asCxt nothing Γ = Γ
+asCxt (just A) Γ = A ∷ Γ
+
+asCxt++ : (S : Stp) (Γ Δ : Cxt)
+  → asCxt S (Γ ++ Δ) ≡ asCxt S Γ ++ Δ
+asCxt++ nothing Γ Δ = refl
+asCxt++ (just _) Γ Δ = refl
+
+{-# REWRITE asCxt++ #-}
+
 

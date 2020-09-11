@@ -194,3 +194,10 @@ mutual
   ccut Δ₀ f (⊸l g g') p | inj₁ (Γ₀ , r , refl) = ⊸l (ccut Δ₀ f g r) g'
   ccut ._ f (⊸l g g') p | inj₂ (Γ₀ , refl , refl) = ⊸l g (ccut Γ₀ f g' refl)
 
+-- A general ⊸-left rule is derivable from ccut
+
+⊸C : {S : Stp} (Δ₀ : Cxt) {Γ Δ₁ : Cxt} {A B C : Fma}
+  → nothing ∣ Γ ⊢ A → S ∣ Δ₀ ++ B ∷ Δ₁ ⊢ C
+  → S ∣ Δ₀ ++ A ⊸ B ∷ Γ ++ Δ₁ ⊢ C
+⊸C Δ₀ f g = ccut Δ₀ (uf (⊸l f ax)) g refl
+
