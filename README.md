@@ -9,6 +9,6 @@ The code includes several equivalent presentations of the free skew closed categ
 The main file containing the whole development for the skew closed case is [code-skewclosed/Everything.agda](https://github.com/niccoloveltri/skewclosedcats/blob/master/code-skewclosed/Everything.agda).
 
 The code also contains an analogous development for skew prounital closed categories (in which the unit is not represented).
-The main file containing the whole development for the skew prounital closed case is [code-skewprounitalclosed/Everything.agda](https://github.com/niccoloveltri/skewclosedcats/blob/master/code-skewprounitalclosed/Everything.agda).
+The main file in this case is [code-skewprounitalclosed/Everything.agda](https://github.com/niccoloveltri/skewclosedcats/blob/master/code-skewprounitalclosed/Everything.agda).
 
 The formalization uses Agda 2.6.0. 
