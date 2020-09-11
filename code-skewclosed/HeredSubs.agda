@@ -887,8 +887,8 @@ nf2foc-⊸lNf t (Ie {B ∷ Γ} p (sp s) v) refl =
 nf2foc-⊸lNf t (switch (sp s)) refl = sym (uf-focus-eq tt _)
 
 
--- Translating a derivation in the focused calculus to Nf and the nack
--- to the focused calculsu is the identity.
+-- Translating a derivation in the focused calculus to Nf and then
+-- back to the focused calculus is the identity.
 
 nf2foc2nf-n : ∀{Γ C} (f : nothing ∣ Γ ⊢L C)
   → nf2foc (foc2nf f) ≡ f
