@@ -24,3 +24,5 @@ open import CompleteSound
 open import Focusing
 
 open import HeredSubs
+
+open import Compare

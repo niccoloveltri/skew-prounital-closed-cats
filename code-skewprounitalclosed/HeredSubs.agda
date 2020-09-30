@@ -509,7 +509,7 @@ foc2nf (uf p f) = foc2nf f
 foc2nf (switch q f) = foc2nfR f
 
 foc2nfR ax = switch (sp [])
-foc2nfR (⊸l {Δ = Δ} f g) = ⊸lNf (foc2nf f) (foc2nf g) refl
+foc2nfR (⊸l {Δ = Δ} f g) = ⊸lNf (foc2nf f) (foc2nfR g) refl
 
 -- An equality involving the admissible rule ⊸lNf
 
@@ -601,8 +601,6 @@ nf2foc2nf-j (switch q f) = nf2focR2nf-j f q
 
 nf2focR2nf-j ax tt = refl
 nf2focR2nf-j (⊸l f g) q =
-  trans (nf2foc-⊸lNf (foc2nf f) (foc2nf g) refl)
-    (trans (cong uf-focus (cong₂ ⊸l-focus (nf2foc2nf-n f) (cong uf-1-focus (nf2foc2nf-j g))))
-      (trans (uf-focus-eq q _) (cong (uf q)
-        (trans (cong (⊸l-focus f) (uf-1-uf-focus g))
-          (⊸l-focus-eq q f g)))))
+  trans (nf2foc-⊸lNf (foc2nf f) (foc2nfR g) refl)
+    (trans (cong uf-focus (cong₂ ⊸l-focus (nf2foc2nf-n f) (cong uf-1-focus (nf2focR2nf-j g q))))
+      (uf-focus-eq q _))

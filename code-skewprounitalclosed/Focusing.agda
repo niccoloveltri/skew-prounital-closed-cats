@@ -39,7 +39,7 @@ mutual
   data _∣_⊢R_ : Stp → Cxt → Fma → Set where
     ax : {X : At} → just (` X) ∣ [] ⊢R ` X
     ⊸l : {Γ Δ : Cxt} → {A B C : Fma} →
-              (f : nothing ∣ Γ ⊢L A) → (g : just B ∣ Δ ⊢L C) →
+              (f : nothing ∣ Γ ⊢L A) → (g : just B ∣ Δ ⊢R C) →
               just (A ⊸ B) ∣ Γ ++ Δ ⊢R C
 
 -- ====================================================================
@@ -54,7 +54,7 @@ mutual
 
   embR : {S : Stp} {Γ : Cxt} {A : Fma} → S ∣ Γ ⊢R A → S ∣ Γ ⊢ A
   embR ax = ax
-  embR (⊸l f g) = ⊸l (embL f) (embL g)
+  embR (⊸l f g) = ⊸l (embL f) (embR g)
 
 -- ====================================================================
 
@@ -79,12 +79,7 @@ uf-focus-eq {C = C} p (switch r f) rewrite not⊸-isprop C p r = refl
               nothing ∣ Γ ⊢L A → just B ∣ Δ ⊢L C →
               just (A ⊸ B) ∣ Γ ++ Δ ⊢L C
 ⊸l-focus f (⊸r g) = ⊸r (⊸l-focus f g)
-⊸l-focus f (switch p g) = switch p (⊸l f (switch p g))
-
-⊸l-focus-eq : {Γ Δ : Cxt} → {A B C : Fma} →
-              (p : not⊸ C) (f : nothing ∣ Γ ⊢L A) (g : just B ∣ Δ ⊢L C) → 
-              ⊸l-focus f g ≡ switch p (⊸l f g)
-⊸l-focus-eq {C = C} p f (switch q g) rewrite not⊸-isprop C p q = refl
+⊸l-focus f (switch p g) = switch p (⊸l f g)
 
 -- admissibility of unrestricted ax
 
@@ -125,7 +120,7 @@ mutual
   focus-embR : {S : Stp} → {Γ : Cxt} → {C : Fma} (q : not⊸ C) →
               (f : S ∣ Γ ⊢R C) → focus (embR f) ≡ switch q f
   focus-embR tt ax = refl
-  focus-embR q (⊸l f g) = trans (cong₂ ⊸l-focus (focus-embL f) (focus-embL g)) (⊸l-focus-eq q f g)
+  focus-embR q (⊸l f g) = trans (cong₂ ⊸l-focus (focus-embL f) (focus-embR q g)) refl
 
 
 embL-uf-focus : {Γ : Cxt} → {A C : Fma} →
