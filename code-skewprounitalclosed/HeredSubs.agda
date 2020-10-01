@@ -214,7 +214,8 @@ ssubL-uf : ∀ {Γ Δ A A' C} (t : just A' ∣ Γ ⊢L A) (u : just A ∣ Δ ⊢
   → ssubL (ufL t) u ≡ ufL (ssubL t u)
 ssubR-uf : ∀ {Γ Δ A A' C} (t : just A' ∣ Γ ⊢L A) (u : A ∣ Δ ⊢R C) 
   → ssubR (ufL t) u ≡ ufL (ssubR t u)
-csubL-uf2 : ∀{Γ Δ} Δ₀ {Δ₁ A A' C} (t : nothing ∣ Γ ⊢L A) (u : just A' ∣ Δ ⊢L C)
+csubL-uf2 : ∀{Γ Δ} Δ₀ {Δ₁ A A' C}
+  → (t : nothing ∣ Γ ⊢L A) (u : just A' ∣ Δ ⊢L C)
   → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
   → csubL (_ ∷ Δ₀) t (ufL u) (cong (_ ∷_) eq)
           ≡ ufL (csubL Δ₀ t u eq)
@@ -237,9 +238,11 @@ csubL-⊸eR : ∀{Γ Δ Λ} Δ₀ {Δ₁ A A' B C}
     ⊸eR (csubR Δ₀ t f eq) u 
 csubL-⊸eR Δ₀ t ax u eq = ⊥-elim ([]disj∷ Δ₀ eq)
 csubL-⊸eR Δ₀ {Δ₁} t (⊸l {Γ} {Δ} f g) u eq with cases++ Δ₀ Γ Δ₁ Δ eq
-csubL-⊸eR {Λ = Λ} Δ₀ {A = A} t (⊸l {Δ = Δ} f g) u refl | inj₁ (Γ₀ , refl , refl)
+csubL-⊸eR {Λ = Λ} Δ₀ {A = A} t (⊸l {Δ = Δ} f g) u refl
+  | inj₁ (Γ₀ , refl , refl)
   rewrite cases++-inj₁ Δ₀ Γ₀ (Δ ++ Λ) A = refl
-csubL-⊸eR {Λ = Λ} ._ {Δ₁} {A} t (⊸l {Γ} f g) u refl | inj₂ (Γ₀ , refl , refl)
+csubL-⊸eR {Λ = Λ} ._ {Δ₁} {A} t (⊸l {Γ} f g) u refl
+  | inj₂ (Γ₀ , refl , refl)
   rewrite cases++-inj₂ Γ₀ Γ (Δ₁ ++ Λ) A =
     cong (⊸l f) (csubL-⊸eR Γ₀ t g u refl)
  
@@ -343,7 +346,8 @@ ssubR-ax (⊸l f t) =
   trans (cong (λ x → ssubR x t) (csubL-R2L [] f (⊸l (ufL axL) ax)))
     (trans (ssubR-R2L (⊸l (csubL [] f (ufL axL) refl) ax) t)
       (cong switch (trans (ssubRR-⊸l (csubL [] f (ufL axL) refl) ax t)
-        (cong₂ ⊸l (trans (csubL-uf f axL) (ssubL-ax2 f)) (ssubRR-ax t)))))
+        (cong₂ ⊸l (trans (csubL-uf f axL) (ssubL-ax2 f))
+                  (ssubRR-ax t)))))
 
 ssubL-ax2 (⊸r {Γ = Γ} t) =
   cong ⊸r (trans (ssubL-R2L (⊸r t) (⊸l (ufL axL) ax))
@@ -355,113 +359,151 @@ ssubL-ax2 (switch f) = refl
 -- parallel substitutions commute;
 -- associativity of substitution
 
--- subNf-par-subNf : ∀{Γ Δ Λ} Δ₀ Δ₁ {Δ₂ A B C}
---   → (t : Γ ⊢Nf A) (u : Λ ⊢Nf B) (v : Δ ⊢Nf C)
---   → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁ ++ B ∷ Δ₂)
---   → subNf Δ₀ t (subNf (Δ₀ ++ A ∷ Δ₁) u v eq) refl ≡
---      subNf (Δ₀ ++ Γ ++ Δ₁) u (subNf Δ₀ t v eq) refl
--- subSp-par-subSp : ∀{Γ Δ Λ} Δ₀ Δ₁ {Δ₂ A A' B C}
---   → (t : Γ ⊢Nf A) (u : Λ ⊢Nf B) (s : Sp Δ A' C)
---   → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁ ++ B ∷ Δ₂)
---   → subSp Δ₀ t (subSp (Δ₀ ++ A ∷ Δ₁) u s eq) refl ≡
---      subSp (Δ₀ ++ Γ ++ Δ₁) u (subSp Δ₀ t s eq) refl
--- subNf-par-◇ : ∀{Γ Δ Λ} Δ₀ {Δ₁ A B C}
---   → (t : Γ ⊢Nf A) (u : Λ ⊢Nf B) (s : Sp Δ A C)
---   → (eq : Δ ≡ Δ₀ ++ B ∷ Δ₁)
---   → t ◇ subSp Δ₀ u s eq ≡ subNf (Γ ++ Δ₀) u (t ◇ s) (cong (Γ ++_) eq)
--- subNf-ass-◇ : ∀{Γ Δ Λ} Δ₀ {Δ₁ A B C}
---   → (t : Γ ⊢Nf A) (u : Δ ⊢Nf B) (s : Sp Λ B C)
---   → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
---   → subNf Δ₀ t u eq ◇ s ≡
---      subNf Δ₀ t (u ◇ s) (cong (_++ Λ) {y = Δ₀ ++ A ∷ Δ₁} eq)
--- subNf-napp2 : ∀{Γ Δ} Δ₀ {Δ₁ Λ A B C} (t : Γ ⊢Nf A) (u : Λ ⊢Nf B ⊸ C) (v : Δ ⊢Nf B)
---   → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
---   → subNf (Λ ++ Δ₀) t (napp u v) (cong (Λ ++_) eq) ≡
---      napp u (subNf Δ₀ t v eq)
--- subNf-napp : ∀{Γ Δ} Δ₀ {Δ₁ Λ A B C} (t : Γ ⊢Nf A) (u : Δ ⊢Nf B ⊸ C) (v : Λ ⊢Nf B)
---   → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
---   → subNf Δ₀ t (napp u v) (cong (_++ Λ) {y = Δ₀ ++ A ∷ Δ₁} eq) ≡
---      napp (subNf Δ₀ t u eq) v
--- subNf-ass-subNf : ∀{Γ Δ Λ} Δ₀ {Δ₁ Λ₀ Λ₁ A B C}
---   → (t : Γ ⊢Nf A) (u : Δ ⊢Nf B) (v : Λ ⊢Nf C)
---   → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
---   → (eq2 : Λ ≡ Λ₀ ++ B ∷ Λ₁)
---   → subNf (Λ₀ ++ Δ₀) t (subNf Λ₀ u v eq2) (cong (λ x → Λ₀ ++ x ++ Λ₁) eq) ≡
---      subNf Λ₀ (subNf Δ₀ t u eq) v eq2
--- subSp-ass-subSp : ∀{Γ Δ Λ} Δ₀ {Δ₁ Λ₀ Λ₁ A A' B C}
---   → (t : Γ ⊢Nf A) (u : Δ ⊢Nf B) (s : Sp Λ A' C)
---   → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
---   → (eq2 : Λ ≡ Λ₀ ++ B ∷ Λ₁)
---   → subSp (Λ₀ ++ Δ₀) t (subSp Λ₀ u s eq2) (cong (λ x → Λ₀ ++ x ++ Λ₁) eq) ≡
---      subSp Λ₀ (subNf Δ₀ t u eq) s eq2
+csubL-par-csubL : ∀{S Γ Δ Λ} Δ₀ Δ₁ {Δ₂ A B C}
+  → (t : nothing ∣ Γ ⊢L A) (u : nothing ∣ Λ ⊢L B) (v : S ∣ Δ ⊢L C)
+  → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁ ++ B ∷ Δ₂)
+  → csubL Δ₀ t (csubL (Δ₀ ++ A ∷ Δ₁) u v eq) refl ≡
+     csubL (Δ₀ ++ Γ ++ Δ₁) u (csubL Δ₀ t v eq) refl
+csubR-par-csubR : ∀{Γ Δ Λ} Δ₀ Δ₁ {Δ₂ A A' B C}
+  → (t : nothing ∣ Γ ⊢L A) (u : nothing ∣ Λ ⊢L B) (s : A' ∣ Δ ⊢R C)
+  → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁ ++ B ∷ Δ₂)
+  → csubR Δ₀ t (csubR (Δ₀ ++ A ∷ Δ₁) u s eq) refl ≡
+     csubR (Δ₀ ++ Γ ++ Δ₁) u (csubR Δ₀ t s eq) refl
+csubL-par-ssubR : ∀{S Γ Δ Λ} Δ₀ {Δ₁ A B C}
+  → (t : S ∣ Γ ⊢L A) (u : nothing ∣ Λ ⊢L B) (s : A ∣ Δ ⊢R C)
+  → (eq : Δ ≡ Δ₀ ++ B ∷ Δ₁)
+  → ssubR t (csubR Δ₀ u s eq)
+          ≡ csubL (Γ ++ Δ₀) u (ssubR t s) (cong (Γ ++_) eq)
+csubL-par-ssubL : ∀{S Γ Δ Λ} Δ₀ {Δ₁ A B C}
+  → (t : S ∣ Γ ⊢L A) (u : nothing ∣ Λ ⊢L B) (s : just A ∣ Δ ⊢L C)
+  → (eq : Δ ≡ Δ₀ ++ B ∷ Δ₁)
+  → ssubL t (csubL Δ₀ u s eq)
+          ≡ csubL (Γ ++ Δ₀) u (ssubL t s) (cong (Γ ++_) eq)
+csubL-ass-ssubL : ∀{Γ Δ Λ} Δ₀ {Δ₁ A B C}
+  → (t : nothing ∣ Γ ⊢L A) (u : nothing ∣ Δ ⊢L B) (s : just B ∣ Λ ⊢L C)
+  → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
+  → ssubL (csubL Δ₀ t u eq) s ≡
+     csubL Δ₀ t (ssubL u s) (cong (_++ Λ) {y = Δ₀ ++ A ∷ Δ₁} eq)
+csubL-ass-ssubR : ∀{S Γ Δ Λ} Δ₀ {Δ₁ A B C}
+  → (t : nothing ∣ Γ ⊢L A) (u : S ∣ Δ ⊢L B) (s : B ∣ Λ ⊢R C)
+  → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
+  → ssubR (csubL Δ₀ t u eq) s ≡
+     csubL Δ₀ t (ssubR u s) (cong (_++ Λ) {y = Δ₀ ++ A ∷ Δ₁} eq)
+csubL-⊸eL2 : ∀{S Γ Δ} Δ₀ {Δ₁ Λ A B C}
+  → (t : nothing ∣ Γ ⊢L A) (u : S ∣ Λ ⊢L B ⊸ C) (v : nothing ∣ Δ ⊢L B)
+  → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
+  → csubL (Λ ++ Δ₀) t (⊸eL u v) (cong (Λ ++_) eq) ≡
+     ⊸eL u (csubL Δ₀ t v eq)
+csubL-⊸eL : ∀{S Γ Δ} Δ₀ {Δ₁ Λ A B C}
+  → (t : nothing ∣ Γ ⊢L A) (u : S ∣ Δ ⊢L B ⊸ C) (v : nothing ∣ Λ ⊢L B)
+  → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
+  → csubL Δ₀ t (⊸eL u v) (cong (_++ Λ) {y = Δ₀ ++ A ∷ Δ₁} eq) ≡
+     ⊸eL (csubL Δ₀ t u eq) v
+csubL-ass-csubL : ∀{S Γ Δ Λ} Δ₀ {Δ₁ Λ₀ Λ₁ A B C}
+  → (t : nothing ∣ Γ ⊢L A) (u : nothing ∣ Δ ⊢L B) (v : S ∣ Λ ⊢L C)
+  → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
+  → (eq2 : Λ ≡ Λ₀ ++ B ∷ Λ₁)
+  → csubL (Λ₀ ++ Δ₀) t (csubL Λ₀ u v eq2) (cong (λ x → Λ₀ ++ x ++ Λ₁) eq)
+          ≡ csubL Λ₀ (csubL Δ₀ t u eq) v eq2
+csubR-ass-csubR : ∀{Γ Δ Λ} Δ₀ {Δ₁ Λ₀ Λ₁ A A' B C}
+  → (t : nothing ∣ Γ ⊢L A) (u : nothing ∣ Δ ⊢L B) (s : A' ∣ Λ ⊢R C)
+  → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
+  → (eq2 : Λ ≡ Λ₀ ++ B ∷ Λ₁)
+  → csubR (Λ₀ ++ Δ₀) t (csubR Λ₀ u s eq2) (cong (λ x → Λ₀ ++ x ++ Λ₁) eq)
+          ≡ csubR Λ₀ (csubL Δ₀ t u eq) s eq2
 
--- subNf-ass-subNf Δ₀ t u (⊸i v) refl refl = cong ⊸i (subNf-ass-subNf Δ₀ t u v refl refl)
--- subNf-ass-subNf Δ₀ {Λ₀ = []} t u (switch (sp s)) refl refl = sym (subNf-ass-◇ Δ₀ t u s refl)
--- subNf-ass-subNf Δ₀ {Λ₀ = A' ∷ Λ₀} t u (switch (sp s)) refl refl =
---   cong (λ x → switch (sp x)) (subSp-ass-subSp Δ₀ t u s refl refl)
+csubL-ass-csubL Δ₀ t u (⊸r v) refl refl =
+  cong ⊸r (csubL-ass-csubL Δ₀ t u v refl refl)
+csubL-ass-csubL Δ₀ {Λ₀ = Λ₀} t u (uf v) refl eq2 with cases∷ Λ₀ eq2
+... | inj₁ (refl , refl , refl) = sym (csubL-ass-ssubL Δ₀ t u v refl)
+... | inj₂ (Γ₀ , refl , refl) = cong uf (csubL-ass-csubL Δ₀ t u v refl refl)
+csubL-ass-csubL Δ₀ t u (switch v) refl refl =
+  cong switch (csubR-ass-csubR Δ₀ t u v refl refl)
 
--- subSp-ass-subSp Δ₀ t u [] eq eq2 =  ⊥-elim ([]disj∷ _ eq2)
--- subSp-ass-subSp Δ₀ {Λ₀ = Λ₀} {Λ₁} t u (_∷_ {Γ} {Δ} f s) eq eq2 with cases++ Λ₀ Γ Λ₁ Δ eq2
--- subSp-ass-subSp {Γ} Δ₀ {Δ₁} {Λ₀} {.(Γ₀ ++ Δ)} {A} t u (_∷_ {.(Λ₀ ++ _ ∷ Γ₀)} {Δ} f s) refl refl | inj₁ (Γ₀ , refl , refl)
---   rewrite cases++-inj₁ (Λ₀ ++ Δ₀) (Δ₁ ++ Γ₀) Δ A =
---     cong (λ x → _∷_ {Λ₀ ++ Δ₀ ++ Γ ++ Δ₁ ++ Γ₀} x s) (subNf-ass-subNf Δ₀ t u f refl refl)
--- subSp-ass-subSp Δ₀ {Δ₁} {.(Γ ++ Γ₀)} {Λ₁} {A} t u (_∷_ {Γ} {.(Γ₀ ++ _ ∷ Λ₁)} f s) refl refl | inj₂ (Γ₀ , refl , refl)
---   rewrite cases++-inj₂ (Γ₀ ++ Δ₀) Γ (Δ₁ ++ Λ₁) A = cong (f ∷_) (subSp-ass-subSp Δ₀ t u s refl refl)
+csubR-ass-csubR Δ₀ t u ax eq eq2 =  ⊥-elim ([]disj∷ _ eq2)
+csubR-ass-csubR Δ₀ {Λ₀ = Λ₀} {Λ₁} t u (⊸l {Γ} {Δ} f s) eq eq2
+  with cases++ Λ₀ Γ Λ₁ Δ eq2
+csubR-ass-csubR {Γ} Δ₀ {Δ₁} {Λ₀} {A = A} t u (⊸l {Δ = Δ} f s) refl refl
+  | inj₁ (Γ₀ , refl , refl)
+  rewrite cases++-inj₁ (Λ₀ ++ Δ₀) (Δ₁ ++ Γ₀) Δ A =
+    cong (λ x → ⊸l {Λ₀ ++ Δ₀ ++ Γ ++ Δ₁ ++ Γ₀} x s)
+      (csubL-ass-csubL Δ₀ t u f refl refl)
+csubR-ass-csubR Δ₀ {Δ₁} {Λ₁ = Λ₁} {A} t u (⊸l {Γ} f s) refl refl
+  | inj₂ (Γ₀ , refl , refl)
+  rewrite cases++-inj₂ (Γ₀ ++ Δ₀) Γ (Δ₁ ++ Λ₁) A =
+    cong (⊸l f) (csubR-ass-csubR Δ₀ t u s refl refl)
 
--- subNf-ass-◇ Δ₀ t u [] refl = refl
--- subNf-ass-◇ {Γ} Δ₀ {Δ₁} t u (_∷_ {Γ₁} f s) refl =
---   trans (cong (λ x → _◇_ {Δ₀ ++ Γ ++ Δ₁ ++ Γ₁} x s) (sym (subNf-napp Δ₀ t u f refl)))
---     (subNf-ass-◇ Δ₀ t (napp u f) s refl)
+csubL-ass-ssubR Δ₀ t u ax refl = refl
+csubL-ass-ssubR {_}{Γ} Δ₀ {Δ₁} t u (⊸l {Γ₁} f s) refl =
+  trans (cong (λ x → ssubR {Γ = Δ₀ ++ Γ ++ Δ₁ ++ Γ₁} x s)
+              (sym (csubL-⊸eL Δ₀ t u f refl)))
+    (csubL-ass-ssubR Δ₀ t (⊸eL u f) s refl)
 
--- subNf-par-subNf Δ₀ Δ₁ t u (⊸i v) refl =
---   cong ⊸i (subNf-par-subNf Δ₀ Δ₁ t u v refl)
--- subNf-par-subNf [] Δ₁ t u (switch (sp s)) refl = subNf-par-◇ Δ₁ t u s refl
--- subNf-par-subNf (A' ∷ Δ₀) Δ₁ t u (switch (sp s)) refl = cong (λ x → switch (sp x)) (subSp-par-subSp Δ₀ Δ₁ t u s refl)
+csubL-par-csubL Δ₀ Δ₁ t u (⊸r v) refl =
+  cong ⊸r (csubL-par-csubL Δ₀ Δ₁ t u v refl)
+csubL-par-csubL Δ₀ Δ₁ t u (uf v) eq with cases∷ Δ₀ eq
+csubL-par-csubL .[] Δ₁ t u (uf v) refl | inj₁ (refl , refl , refl) =
+  csubL-par-ssubL Δ₁ t u v refl
+csubL-par-csubL .(_ ∷ Γ₀) Δ₁ t u (uf v) refl | inj₂ (Γ₀ , refl , refl) =
+  cong uf (csubL-par-csubL Γ₀ Δ₁ t u v refl)
+csubL-par-csubL Δ₀ Δ₁ t u (switch v) refl =
+  cong switch (csubR-par-csubR Δ₀ Δ₁ t u v refl)
 
--- subSp-par-subSp Δ₀ Δ₁ t u [] eq = ⊥-elim ([]disj∷ Δ₀ eq)
--- subSp-par-subSp Δ₀ Δ₁ {Δ₂} {A} {B = B} t u (_∷_ {Γ} {Δ} f s) eq with cases++ (Δ₀ ++ A ∷ Δ₁) Γ Δ₂ Δ eq
--- subSp-par-subSp {Γ} {Λ = Λ} Δ₀ Δ₁ {.(Γ₀ ++ Δ)} {A} {B = B} t u (_∷_ {.(Δ₀ ++ A ∷ Δ₁ ++ B ∷ Γ₀)} {Δ} f s) refl | inj₁ (Γ₀ , refl , refl)
---   rewrite cases++-inj₁ Δ₀ (Δ₁ ++ Λ ++ Γ₀) Δ A | cases++-inj₁ Δ₀ (Δ₁ ++ B ∷ Γ₀) Δ A | cases++-inj₁ (Δ₀ ++ Γ ++ Δ₁) Γ₀ Δ B =
---     cong (λ x → _∷_ {Δ₀ ++ Γ ++ Δ₁ ++ Λ ++ Γ₀} x s) (subNf-par-subNf Δ₀ Δ₁ t u f refl)
--- subSp-par-subSp Δ₀ Δ₁ {Δ₂} {A} {B = B} t u (_∷_ {Γ} {.(Γ₀ ++ B ∷ Δ₂)} f s) eq | inj₂ (Γ₀ , refl , q) with cases++ Δ₀ Γ Δ₁ Γ₀ (sym q)
--- subSp-par-subSp {Γ} {Λ = Λ} Δ₀ .(Γ₀' ++ Γ₀) {Δ₂} {A} {B = B} t u (_∷_ {.(Δ₀ ++ A ∷ Γ₀')} {.(Γ₀ ++ B ∷ Δ₂)} f s) refl | inj₂ (Γ₀ , refl , refl) | inj₁ (Γ₀' , refl , refl)
---   rewrite cases++-inj₁ Δ₀ Γ₀' (Γ₀ ++ Λ ++ Δ₂) A | cases++-inj₁ Δ₀ Γ₀' (Γ₀ ++ B ∷ Δ₂) A | cases++-inj₂ Γ₀ (Δ₀ ++ Γ ++ Γ₀') Δ₂ B = refl
--- subSp-par-subSp {Γ₁} {Λ = Λ} .(Γ ++ Γ₀') Δ₁ {Δ₂} {A} {B = B} t u (_∷_ {Γ} f s) refl | inj₂ (.(Γ₀' ++ A ∷ Δ₁) , refl , refl) | inj₂ (Γ₀' , refl , refl)
---   rewrite cases++-inj₂ Γ₀' Γ (Δ₁ ++ Λ ++ Δ₂) A | cases++-inj₂ Γ₀' Γ (Δ₁ ++ B ∷ Δ₂) A | cases++-inj₂ (Γ₀' ++ Γ₁ ++ Δ₁) Γ Δ₂ B =
---     cong (f ∷_) (subSp-par-subSp Γ₀' Δ₁ t u s refl)
+csubR-par-csubR Δ₀ Δ₁ t u ax eq = ⊥-elim ([]disj∷ Δ₀ eq)
+csubR-par-csubR Δ₀ Δ₁ {Δ₂} {A} {B = B} t u (⊸l {Γ} {Δ} f s) eq
+  with cases++ (Δ₀ ++ A ∷ Δ₁) Γ Δ₂ Δ eq
+csubR-par-csubR {Γ} {Λ = Λ} Δ₀ Δ₁ {A = A} {B = B} t u (⊸l {Δ = Δ} f s) refl
+  | inj₁ (Γ₀ , refl , refl)
+  rewrite cases++-inj₁ Δ₀ (Δ₁ ++ Λ ++ Γ₀) Δ A
+        | cases++-inj₁ Δ₀ (Δ₁ ++ B ∷ Γ₀) Δ A
+        | cases++-inj₁ (Δ₀ ++ Γ ++ Δ₁) Γ₀ Δ B =
+    cong (λ x → ⊸l {Δ₀ ++ Γ ++ Δ₁ ++ Λ ++ Γ₀} x s)
+      (csubL-par-csubL Δ₀ Δ₁ t u f refl)
+csubR-par-csubR Δ₀ Δ₁ {Δ₂} {A} {B = B} t u (⊸l {Γ} f s) eq
+  | inj₂ (Γ₀ , refl , q) with cases++ Δ₀ Γ Δ₁ Γ₀ (sym q)
+csubR-par-csubR {Γ} {Λ = Λ} Δ₀ ._ {Δ₂} {A} {B = B} t u (⊸l f s) refl
+  | inj₂ (Γ₀ , refl , refl) | inj₁ (Γ₀' , refl , refl)
+  rewrite cases++-inj₁ Δ₀ Γ₀' (Γ₀ ++ Λ ++ Δ₂) A
+        | cases++-inj₁ Δ₀ Γ₀' (Γ₀ ++ B ∷ Δ₂) A
+        | cases++-inj₂ Γ₀ (Δ₀ ++ Γ ++ Γ₀') Δ₂ B = refl
+csubR-par-csubR {Γ₁} {Λ = Λ} ._ Δ₁ {Δ₂} {A} {B = B} t u (⊸l {Γ} f s) refl
+  | inj₂ (._ , refl , refl) | inj₂ (Γ₀' , refl , refl)
+  rewrite cases++-inj₂ Γ₀' Γ (Δ₁ ++ Λ ++ Δ₂) A
+        | cases++-inj₂ Γ₀' Γ (Δ₁ ++ B ∷ Δ₂) A
+        | cases++-inj₂ (Γ₀' ++ Γ₁ ++ Δ₁) Γ Δ₂ B =
+    cong (⊸l f) (csubR-par-csubR Γ₀' Δ₁ t u s refl)
 
--- subNf-par-◇ Δ₀ t u [] eq = ⊥-elim ([]disj∷ Δ₀ eq)
--- subNf-par-◇ Δ₀ {Δ₁} t u (_∷_ {Γ} {Δ} f s) eq with cases++ Δ₀ Γ Δ₁ Δ eq
--- subNf-par-◇ {Γ} {Λ = Λ} Δ₀ {.(Γ₀ ++ Δ)} t u (_∷_ {.(Δ₀ ++ _ ∷ Γ₀)} {Δ} f s) refl | inj₁ (Γ₀ , refl , refl) =
---   trans (cong (λ x → _◇_ {Γ ++ Δ₀ ++ Λ ++ Γ₀} x s) (sym (subNf-napp2 Δ₀ u t f refl)))
---     (subNf-ass-◇ (Γ ++ Δ₀) u (napp t f) s refl )
--- subNf-par-◇ .(Γ ++ Γ₀) {Δ₁} t u (_∷_ {Γ} {.(Γ₀ ++ _ ∷ Δ₁)} f s) refl | inj₂ (Γ₀ , refl , refl) =
---   subNf-par-◇ Γ₀ (napp t f) u s refl
+csubL-par-ssubR Δ₀ t u ax eq = ⊥-elim ([]disj∷ Δ₀ eq)
+csubL-par-ssubR Δ₀ {Δ₁} t u (⊸l {Γ} {Δ} f s) eq with cases++ Δ₀ Γ Δ₁ Δ eq
+csubL-par-ssubR {Γ = Γ} {Λ = Λ} Δ₀ t u (⊸l f s) refl
+  | inj₁ (Γ₀ , refl , refl) =
+  trans (cong (λ x → ssubR {Γ = Γ ++ Δ₀ ++ Λ ++ Γ₀} x s)
+              (sym (csubL-⊸eL2 Δ₀ u t f refl)))
+    (csubL-ass-ssubR (Γ ++ Δ₀) u (⊸eL t f) s refl )
+csubL-par-ssubR ._ t u (⊸l f s) refl | inj₂ (Γ₀ , refl , refl) =
+  csubL-par-ssubR Γ₀ (⊸eL t f) u s refl
 
--- subNf-napp2 Δ₀ {Δ₁} t (⊸i u) v refl = subNf-ass-subNf Δ₀ t v u refl refl
+csubL-⊸eL2 Δ₀ {Δ₁} t (⊸r u) v refl = csubL-ass-csubL Δ₀ t v u refl refl
 
--- subNf-napp Δ₀ {Δ₁} t (⊸i u) v refl = subNf-par-subNf Δ₀ Δ₁ t v u refl
+csubL-⊸eL Δ₀ {Δ₁} t (⊸r u) v refl = csubL-par-csubL Δ₀ Δ₁ t v u refl
 
--- A key lemma: substitution commutes with normalization
+csubL-ass-ssubL Δ₀ t u (⊸r v) refl =
+  cong ⊸r (csubL-ass-ssubL Δ₀ t u v refl)
+csubL-ass-ssubL Δ₀ t u (switch f) refl =
+  csubL-ass-ssubR Δ₀ t u f refl
 
-csubL-⊸e : ∀{S Γ Δ} Δ₀ {Δ₁ Λ A A' B}
-  → (t : nothing ∣ Γ ⊢L A') (u : S ∣ Δ ⊢L A ⊸ B) (v : nothing ∣ Λ ⊢L A)
-  → (eq : Δ ≡ Δ₀ ++ A' ∷ Δ₁)
-  → csubL Δ₀ t (⊸eL u v) (cong (_++ Λ) {y = Δ₀ ++ _ ∷ Δ₁} eq)
-          ≡ ⊸eL (csubL Δ₀ t u eq) v
-csubL-⊸e Δ₀ t (⊸r u) v refl = {!!}
-
-csubL-⊸e2 : ∀{S Γ Δ} Δ₀ {Δ₁ Λ A A' B}
-  → (t : nothing ∣ Γ ⊢L A') (u : S ∣ Λ ⊢L A ⊸ B) (v : nothing ∣ Δ ⊢L A)
-  → (eq : Δ ≡ Δ₀ ++ A' ∷ Δ₁)
-  → csubL (Λ ++ Δ₀) t (⊸eL u v) (cong (Λ ++_) eq)
-          ≡ ⊸eL u (csubL Δ₀ t v eq)
-csubL-⊸e2 Δ₀ t (⊸r u) v refl = {!!}
+csubL-par-ssubL Δ₀ t u (⊸r v) refl =
+  cong ⊸r (csubL-par-ssubL Δ₀ t u v refl)
+csubL-par-ssubL Δ₀ t u (switch f) refl =
+  csubL-par-ssubR Δ₀ t u f refl
 
 ssubL-⊸e2 : ∀{S Γ Δ Λ A' A B}
   → (t : S ∣ Γ ⊢L A') (u : just A' ∣ Δ ⊢L A ⊸ B) (v : nothing ∣ Λ ⊢L A)
   → ssubL t (⊸eL u v) ≡ ⊸eL (ssubL t u) v
-ssubL-⊸e2 t (⊸r u) v = {!!}
+ssubL-⊸e2 {Δ = Δ} t (⊸r u) v = csubL-par-ssubL Δ t v u refl 
+
+-- A key lemma: substitution commutes with normalization
+
 
 ssub-nf : ∀{S Γ Δ A C} (t : S ∣ Γ ⊢ A) (u : just A ∣ Δ ⊢ C)
   → ssubL (nf t) (nf u) ≡ nf (ssub t u)
@@ -486,19 +528,14 @@ csub-nf Δ₀ t (⊸i u) refl =
   cong ⊸r (csub-nf Δ₀ t u refl)
 csub-nf Δ₀ {Δ₁} t (⊸e {Γ = Γ} {Δ} u u₁) eq with cases++ Δ₀ Γ Δ₁ Δ eq
 csub-nf {Γ = Γ} Δ₀ t (⊸e u v) refl | inj₁ (Γ₀ , refl , refl) =
-  trans (csubL-⊸e Δ₀ (nf t) (nf u) (nf v) refl)
+  trans (csubL-⊸eL Δ₀ (nf t) (nf u) (nf v) refl)
     (cong (λ x → ⊸eL {Γ = Δ₀ ++ Γ ++ Γ₀} x (nf v)) (csub-nf Δ₀ t u refl))
 csub-nf ._ t (⊸e u v) refl | inj₂ (Γ₀ , refl , refl) =
-  trans (csubL-⊸e2 Γ₀ (nf t) (nf u) (nf v) refl)
+  trans (csubL-⊸eL2 Γ₀ (nf t) (nf u) (nf v) refl)
     (cong (⊸eL (nf u)) (csub-nf Γ₀ t v refl))
 
 -- nf sends ≑-equivalent terms to the same normal form.
 
-{-
-etaL : ∀{S Γ A B} (t : S ∣ Γ ⊢L A ⊸ B)
-  → t ≡ ⊸r (⊸eL t (ufL axL))
-etaL (⊸r {Γ = Γ} t) = cong ⊸r (sym (csubL-ax Γ t refl))  
--}
 ⊸eufL : ∀{Γ Δ A A' B}
   → (t : just A' ∣ Γ ⊢L A ⊸ B) (u : nothing ∣ Δ ⊢L A)
   → ⊸eL (ufL t) u ≡ ufL (⊸eL t u)
@@ -521,27 +558,10 @@ congnf ⊸iuf = refl
 -- We show that each term is equivalent to the embedding of its normal
 -- form
 
--- First, some auxiliary equalities, stating that the embeddings embNf
--- and embSp commute with other operations.
+-- First, some auxiliary equalities about embeddings L2nd and R2nd
 
--- emb-⊸eSp : ∀ {Γ Δ Λ A B C} (t : Γ ⊢ A) (s : Sp Δ A (B ⊸ C)) (n : Λ ⊢Nf B)
---   → embSp t (⊸eSp s n) ≡ ⊸e (embSp t s) (embNf n)
--- emb-⊸eSp t [] n = refl
--- emb-⊸eSp t (u ∷ s) n = emb-⊸eSp (⊸e t (embNf u)) s n
-
--- embSp≑ : ∀ {Γ Δ A B} {t u : Γ ⊢ A} → t ≑ u → (s : Sp Δ A B) → embSp t s ≑ embSp u s
--- embSp≑ p [] = p
--- embSp≑ p (f ∷ s) = embSp≑ (⊸e p refl) s
-
-
--- sub-embSp : ∀{Γ Δ} Δ₀ {Δ₁ Λ A B C} (t : Γ ⊢ A) (u : Δ ⊢ B) (s : Sp Λ B C)
---   → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
---   → embSp (sub Δ₀ t u eq) s ≑ sub Δ₀ t (embSp u s) (cong (_++ Λ) {y = Δ₀ ++ A ∷ Δ₁} eq)
--- sub-embSp Δ₀ t u [] refl = refl
--- sub-embSp Δ₀ {Δ₁} {A = A} t u (_∷_ {Γ} f s) refl with sub-embSp Δ₀ t (⊸e u (embNf f)) s refl
--- ... | ih rewrite cases++-inj₁ Δ₀ Δ₁ Γ A = ih
-
-R2nd-⊸eR : ∀ {S Γ Δ Λ A B C} (t : S ∣ Γ ⊢ A) (u : A ∣ Δ ⊢R B ⊸ C) (n : nothing ∣ Λ ⊢L B)
+R2nd-⊸eR : ∀ {S Γ Δ Λ A B C}
+  → (t : S ∣ Γ ⊢ A) (u : A ∣ Δ ⊢R B ⊸ C) (n : nothing ∣ Λ ⊢L B)
   → R2nd t (⊸eR u n) ≡ ⊸e (R2nd t u) (L2nd n)
 R2nd-⊸eR t ax n = refl
 R2nd-⊸eR t (⊸l u v) n = R2nd-⊸eR (⊸e t (L2nd u)) v n
@@ -578,7 +598,8 @@ L2nd-⊸eL : ∀{S Γ Δ A B} (t : S ∣ Γ ⊢L A ⊸ B) (u : nothing ∣ Δ �
 R2nd-csubR : ∀{Γ Δ} Δ₀ {Δ₁ Λ A A' B C}
   → (t : just A' ∣ Γ ⊢ B) (u : nothing ∣ Λ ⊢L A) (v : B ∣ Δ ⊢R C)
   → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
-  → R2nd t (csubR Δ₀ u v eq) ≑ csub (Γ ++ Δ₀) (L2nd u) (R2nd t v) (cong (Γ ++_) eq)
+  → R2nd t (csubR Δ₀ u v eq)
+         ≑ csub (Γ ++ Δ₀) (L2nd u) (R2nd t v) (cong (Γ ++_) eq)
 
 L2nd-ssubL t (⊸r u) = ⊸i (L2nd-ssubL t u)
 L2nd-ssubL {C = ` X} t (switch f) =
