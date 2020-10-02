@@ -51,7 +51,7 @@ data _∣_⊢nf_ where
     → S ∣ Γ ++ A ∷ [] ⊢nf B → S ∣ Γ ⊢nf A ⊸ B
   uf : {Γ : Cxt} {A : Fma} {X : At}
     → just A ∣ Γ ⊢nf ` X → nothing ∣ A ∷ Γ ⊢nf ` X
-  ne` : {A : Fma} {Γ : Cxt} {X : At}
+  switch : {A : Fma} {Γ : Cxt} {X : At}
     → A ∣ Γ ⊢ne ` X → just A ∣ Γ ⊢nf ` X
 
 data _∣_⊢ne_ where
@@ -69,7 +69,7 @@ ne2focR : ∀ {S Γ Δ A B} → S ∣ Γ ⊢ne A → A ∣ Δ ⊢R B
 
 nf2focL (⊸i f) = ⊸r (nf2focL f)
 nf2focL (uf f) = uf (nf2focL f)
-nf2focL (ne` f) = switch (ne2focR f ax)
+nf2focL (switch f) = switch (ne2focR f ax)
 
 
 ne2focR ax u = u
@@ -81,7 +81,7 @@ focR2ne : ∀ {S Γ Δ A C} → S ∣ Γ ⊢ne A → A ∣ Δ ⊢R C
 
 focL2nf (⊸r f) = ⊸i (focL2nf f)
 focL2nf (uf f) = uf (focL2nf f)
-focL2nf {just A} (switch f) = ne` (focR2ne ax f)
+focL2nf {just A} (switch f) = switch (focR2ne ax f)
 
 focR2ne u ax = u
 focR2ne u (⊸l f t) = focR2ne (⊸e u (focL2nf f)) t
@@ -112,7 +112,7 @@ ne2focR2ne : ∀ {S Γ Δ A B}
 
 nf2focL2nf (⊸i f) = cong ⊸i (nf2focL2nf f)
 nf2focL2nf (uf f) = cong uf (nf2focL2nf f)
-nf2focL2nf (ne` f) = cong ne` (ne2focR2ne f ax)
+nf2focL2nf (switch f) = cong switch (ne2focR2ne f ax)
 
 ne2focR2ne ax u = refl
 ne2focR2ne (⊸e t u) v =
