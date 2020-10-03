@@ -62,6 +62,7 @@ idS++ (t ∷ Γ₁) Γ₂ = cong (_∷_ (uf ax)) (idS++ Γ₁ Γ₂)
 ++Sass [] σ₂ σ₃ = refl
 ++Sass (t ∷ σ₁) σ₂ σ₃ = cong (_∷_ t) (++Sass σ₁ σ₂ σ₃)
 
+{-# REWRITE idS++ #-}
 {-# REWRITE ++Sass #-}
 {-# REWRITE ++Sru #-}
 
@@ -79,71 +80,6 @@ psub (⊸i t) σ = ⊸i (psub t (σ ++S (uf ax ∷ [])))
 psub (⊸e {Γ = Γ} {Δ} t u) σ with is++S {Γ}{Δ} σ
 ... | _ , _ , refl , σ₁ , σ₂ , refl =
   ⊸e (psub t σ₁) (psub u σ₂)
-
--- Substituting with the identity psubstitution
-
-ssub-uf : ∀{Γ Δ A' A C} (t : just A' ∣ Γ ⊢ A) (u : just A ∣ Δ ⊢ C)
-  → ssub (uf t) u ≡ uf (ssub t u)
-ssub-uf t u = {!!}
-
-ssub-id : ∀{Δ A C} (u : just A ∣ Δ ⊢ C) → ssub ax u ≡ u
-ssub-id t = {!!}
-
-psub-id : ∀{S Γ A} (t : S ∣ Γ ⊢ A) → psub t (idS Γ) ≡ t
-psub-id ax = refl
-psub-id (uf t) =
-  trans (trans (ssub-uf ax _) (cong uf (ssub-id _)))
-    (cong uf (psub-id t))
-psub-id {Γ = Γ} (⊸i {A = A} t) =
-  cong ⊸i (trans (cong (psub t) (sym (idS++ Γ (A ∷ [])))) (psub-id t)) 
-psub-id (⊸e {Γ = Γ} {Δ} t u) rewrite idS++ Γ Δ | ++Sis++S (idS Γ) (idS Δ) =
-  cong₂ ⊸e (psub-id t) (psub-id u)
-
--- Sequential composition of substitutions
-
-_∘S_ : ∀ {Γ Δ Λ} → Sub Δ Λ → Sub Γ Δ → Sub Γ Λ
-ρ ∘S [] = ρ
-ρ ∘S _∷_ {Δ₂ = Δ₂} t σ with is++S {_}{Δ₂} ρ
-(_ ∘S (t ∷ σ)) | _ , _ , refl , ρ , ρ' , refl = psub t ρ ∷ (ρ' ∘S σ)
-
-lidS : ∀ {Γ Δ} (σ : Sub Γ Δ) → idS Δ ∘S σ ≡ σ
-lidS [] = refl
-lidS (_∷_ {Δ₁ = Δ₁} {Δ₂} t σ) rewrite idS++ Δ₁ Δ₂ | ++Sis++S (idS Δ₁) (idS Δ₂) =
-  cong₂ _∷_ (psub-id t) (lidS σ)
-
--- Composition preserves ++S
-
-compS++ : ∀ {Γ₁ Γ₂ Δ₁ Δ₂ Λ₁ Λ₂}
-  → (σ₁ : Sub Γ₁ Δ₁) (σ₂ : Sub Γ₂ Δ₂) (ρ₁ : Sub Δ₁ Λ₁) (ρ₂ : Sub Δ₂ Λ₂) 
-  → (ρ₁ ++S ρ₂) ∘S (σ₁ ++S σ₂) ≡ (ρ₁ ∘S σ₁) ++S (ρ₂ ∘S σ₂) 
-compS++ [] σ₂ [] ρ₂ = refl
-compS++ (_∷_ {Δ₂ = Δ₂} t σ₁) σ₂ ρ₁ ρ₂ with is++S {_}{Δ₂} ρ₁
-compS++ (_∷_ {Δ₂ = Δ₂} t σ₁) σ₂ _ ρ₂ | _ , _ , refl , ρ₁ , ρ₁' , refl
-  rewrite ++Sis++S ρ₁ (ρ₁' ++S ρ₂) = cong (_∷_ (psub t ρ₁)) (compS++ σ₁ σ₂ ρ₁' ρ₂)
-
--- Substituting with a composite psubstitution
-
-psub-ssub : ∀{S Γ Γ' Δ Δ' A C}
-  → (t : S ∣ Γ ⊢ A) (u : just A ∣ Γ' ⊢ C) (σ₁ : Sub Γ Δ) (σ₂ : Sub Γ' Δ')
-  → psub (ssub t u) (σ₁ ++S σ₂) ≡ ssub (psub t σ₁) (psub u σ₂) 
-psub-ssub t u σ₁ σ₂ = {!!}
-
-psub-comp : ∀{S Γ Δ Λ}{A} (t : S ∣ Γ ⊢ A) (σ₁ : Sub Γ Δ) (σ₂ : Sub Δ Λ)
-  → psub t (σ₂ ∘S σ₁) ≡ psub (psub t σ₁) σ₂
-psub-comp ax [] σ₂ = refl
-psub-comp (uf t) (_∷_ {Δ₁ = Δ₁} {Δ₂} u σ₁) σ₂ with is++S {Δ₁}{Δ₂} σ₂
-... | (Λ₁ , Λ₂ , refl , σ₂₁ , σ₂₂ , refl) =
-  trans (cong (ssub (psub u σ₂₁)) (psub-comp t σ₁ σ₂₂))
-    (sym (psub-ssub u (psub t σ₁) σ₂₁ σ₂₂))
-psub-comp (⊸i t) σ₁ σ₂ =
-  cong ⊸i
-    (trans (cong (psub t) (sym (compS++ σ₁ (uf ax ∷ []) σ₂ (uf ax ∷ []))))
-           (psub-comp t (σ₁ ++S (uf ax ∷ [])) (σ₂ ++S (uf ax ∷ []))))
-psub-comp (⊸e {Δ = Δ} t u) σ₁ σ₂ with is++S {_}{Δ} σ₁
-psub-comp (⊸e {Δ = Δ} t u) _ σ₂ | _ , Λ , refl , σ₁ , ρ₁ , refl with is++S {_}{Λ} σ₂
-psub-comp (⊸e {Δ = Δ} t u) _ _ | _ , Λ , refl , σ₁ , ρ₁ , refl | _ , _ , refl , σ₂ , ρ₂ , refl
-  rewrite compS++ σ₁ ρ₁ σ₂ ρ₂ | ++Sis++S (σ₂ ∘S σ₁) (ρ₂ ∘S ρ₁) =
-    cong₂ ⊸e (psub-comp t σ₁ σ₂) (psub-comp u ρ₁ ρ₂)
 
 -- =======================================================================
 
@@ -167,6 +103,125 @@ data _≑'_ : {S : Stp}{Γ : Cxt}{A : Fma} → S ∣ Γ ⊢ A → S ∣ Γ ⊢ A
 
 ≡-to-≑' : ∀{S Γ A} {t u : S ∣ Γ ⊢ A} → t ≡ u → t ≑' u
 ≡-to-≑' refl = refl
+
+data _S≑'_ : {Γ Δ : Cxt} → Sub Γ Δ → Sub Γ Δ → Set where
+  [] : [] S≑' []
+  _∷_ : ∀{Γ Δ₁ Δ₂ A} {t t' : nothing ∣ Δ₂ ⊢ A} {σ σ' : Sub Γ Δ₁}
+    → t ≑' t' → σ S≑' σ'
+    → (t ∷ σ) S≑' (t' ∷ σ')
+
+reflS≑' : {Γ Δ : Cxt} (σ : Sub Γ Δ) → σ S≑' σ
+reflS≑' [] = []
+reflS≑' (x ∷ σ) = refl ∷ reflS≑' σ
+
+cong++S1 : ∀{Γ₁ Γ₂ Δ₁ Δ₂} {σ₁ σ₂ : Sub Γ₁ Δ₁} → σ₁ S≑' σ₂
+  → (σ : Sub Γ₂ Δ₂)
+  → (σ₁ ++S σ) S≑' (σ₂ ++S σ)
+cong++S1 [] σ = reflS≑' σ
+cong++S1 (x ∷ eq) σ = x ∷ (cong++S1 eq σ)
+
+cong++S2 : ∀{Γ₁ Γ₂ Δ₁ Δ₂} (σ : Sub Γ₁ Δ₁) {σ₁ σ₂ : Sub Γ₂ Δ₂}
+  → σ₁ S≑' σ₂ → (σ ++S σ₁) S≑' (σ ++S σ₂)
+cong++S2 [] eq = eq
+cong++S2 (x ∷ σ) eq = refl ∷ (cong++S2 σ eq)  
+
+is++S' : ∀{Γ₁ Γ₂ Δ₁ Δ₂} (σ₁ : Sub Γ₁ Δ₁) (σ₂ : Sub Γ₂ Δ₂) (σ : Sub (Γ₁ ++ Γ₂) (Δ₁ ++ Δ₂))
+  → (σ₁ ++S σ₂) S≑' σ
+  → Σ (Sub Γ₁ Δ₁) λ σ₁' → Σ (Sub Γ₂ Δ₂) λ σ₂' → σ ≡ σ₁' ++S σ₂' × σ₁ S≑' σ₁' × σ₂ S≑' σ₂'
+is++S' [] σ₂ σ eq = [] , σ , refl , [] , eq
+is++S' (t ∷ σ₁) σ₂ ._ (eq ∷ eqs) with is++S' σ₁ σ₂ _ eqs
+... | (σ₁' , σ₂' , refl , eq1 , eq2) = _ ∷ σ₁' , σ₂' , refl , eq ∷ eq1 , eq2
+
+congssub : ∀{S Γ Δ A C} {t t' : S ∣ Γ ⊢ A} {u u' : just A ∣ Δ ⊢ C}
+  → t ≑' t' → u ≑' u' → ssub t u ≑' ssub t' u'
+congssub eq eq2 = {!!}
+
+congpsub2 : ∀{S Γ Δ A} (t : S ∣ Γ ⊢ A) {σ σ' : Sub Γ Δ}
+  → σ S≑' σ' → psub t σ ≑' psub t σ'
+congpsub2 ax [] = refl
+congpsub2 (uf t) (eq ∷ eq2) = congssub eq (congpsub2 t eq2)
+congpsub2 (⊸i t) eq = ⊸i (congpsub2 t (cong++S1 eq (uf ax ∷ [])))
+congpsub2 (⊸e {_}{Γ}{Δ} t u) {σ}{σ'} eq with is++S {Γ}{Δ} σ 
+congpsub2 (⊸e t u) {σ' = σ'} eq | (Λ₁ , Λ₂ , refl , σ₁ , σ₂ , refl) with is++S' σ₁ σ₂ σ' eq
+... | (σ₁' , σ₂' , refl , eq1 , eq2) rewrite ++Sis++S σ₁' σ₂'
+  = ⊸e (congpsub2 t eq1) (congpsub2 u eq2)
+
+
+-- Substituting with the identity psubstitution
+
+ssub-uf : ∀{Γ Δ A' A C} (t : just A' ∣ Γ ⊢ A) (u : just A ∣ Δ ⊢ C)
+  → ssub (uf t) u ≑' uf (ssub t u)
+ssub-uf t ax = refl
+ssub-uf t (⊸i u) =
+  ⊸i (ssub-uf t u) ∙ ⊸iuf
+ssub-uf t (⊸e u u₁) =
+  ⊸e (ssub-uf t u) refl ∙ ⊸euf
+
+ssub-id : ∀{Δ A C} (u : just A ∣ Δ ⊢ C) → ssub ax u ≡ u
+ssub-id ax = refl
+ssub-id (⊸i t) = cong ⊸i (ssub-id t)
+ssub-id (⊸e {Γ = Γ}{Δ} t t₁) = cong₂ (⊸e {Γ = Γ}{Δ}) (ssub-id t) refl
+
+psub-id : ∀{S Γ A} (t : S ∣ Γ ⊢ A) → psub t (idS Γ) ≑' t
+psub-id ax = refl
+psub-id (uf t) =
+  ssub-uf ax _ ∙ uf (≡-to-≑' (ssub-id _) ∙ psub-id t)
+psub-id {Γ = Γ} (⊸i {A = A} t) =
+  ⊸i (≡-to-≑' (cong (psub t) (sym (idS++ Γ (A ∷ [])))) ∙ psub-id t)
+psub-id (⊸e {Γ = Γ} {Δ} t u) rewrite idS++ Γ Δ | ++Sis++S (idS Γ) (idS Δ) =
+  ⊸e (psub-id t) (psub-id u)
+
+-- Sequential composition of substitutions
+
+_∘S_ : ∀ {Γ Δ Λ} → Sub Δ Λ → Sub Γ Δ → Sub Γ Λ
+ρ ∘S [] = ρ
+ρ ∘S _∷_ {Δ₂ = Δ₂} t σ with is++S {_}{Δ₂} ρ
+(_ ∘S (t ∷ σ)) | _ , _ , refl , ρ , ρ' , refl = psub t ρ ∷ (ρ' ∘S σ)
+
+lidS : ∀ {Γ Δ} (σ : Sub Γ Δ) → (idS Δ ∘S σ) S≑' σ
+lidS [] = []
+lidS (_∷_ {Γ = Γ}{Δ₁} {Δ₂} t σ) rewrite idS++ Δ₁ Δ₂ | ++Sis++S (idS Δ₁) (idS Δ₂) =
+   (psub-id t) ∷ (lidS σ) 
+
+-- Composition preserves ++S
+
+compS++ : ∀ {Γ₁ Γ₂ Δ₁ Δ₂ Λ₁ Λ₂}
+  → (σ₁ : Sub Γ₁ Δ₁) (σ₂ : Sub Γ₂ Δ₂) (ρ₁ : Sub Δ₁ Λ₁) (ρ₂ : Sub Δ₂ Λ₂) 
+  → (ρ₁ ++S ρ₂) ∘S (σ₁ ++S σ₂) ≡ (ρ₁ ∘S σ₁) ++S (ρ₂ ∘S σ₂) 
+compS++ [] σ₂ [] ρ₂ = refl
+compS++ (_∷_ {Δ₂ = Δ₂} t σ₁) σ₂ ρ₁ ρ₂ with is++S {_}{Δ₂} ρ₁
+compS++ (_∷_ {Δ₂ = Δ₂} t σ₁) σ₂ _ ρ₂ | _ , _ , refl , ρ₁ , ρ₁' , refl
+  rewrite ++Sis++S ρ₁ (ρ₁' ++S ρ₂) = cong (_∷_ (psub t ρ₁)) (compS++ σ₁ σ₂ ρ₁' ρ₂)
+
+-- Substituting with a composite psubstitution
+
+psub-ssub : ∀{S Γ Γ' Δ Δ' A C}
+  → (t : S ∣ Γ ⊢ A) (u : just A ∣ Γ' ⊢ C) (σ₁ : Sub Γ Δ) (σ₂ : Sub Γ' Δ')
+  → psub (ssub t u) (σ₁ ++S σ₂) ≡ ssub (psub t σ₁) (psub u σ₂) 
+psub-ssub t ax σ₁ [] = refl
+psub-ssub t (⊸i u) σ₁ σ₂ =
+  cong ⊸i (psub-ssub t u σ₁ (σ₂ ++S (uf ax ∷ [])) )
+psub-ssub {Δ = Δ₁} t (⊸e {Γ = Γ} {Δ} u v) σ₁ σ₂ with is++S {Γ}{Δ} σ₂
+... | (Λ₁ , Λ₂ , refl , σ₂₁ , σ₂₂ , refl)
+  rewrite ++Sis++S (σ₁ ++S σ₂₁) σ₂₂ =
+  cong₂ (⊸e {_}{Δ₁ ++ Λ₁}{Λ₂}) (psub-ssub t u σ₁ σ₂₁) refl 
+
+psub-comp : ∀{S Γ Δ Λ}{A} (t : S ∣ Γ ⊢ A) (σ₁ : Sub Γ Δ) (σ₂ : Sub Δ Λ)
+  → psub t (σ₂ ∘S σ₁) ≡ psub (psub t σ₁) σ₂
+psub-comp ax [] σ₂ = refl
+psub-comp (uf t) (_∷_ {Δ₁ = Δ₁} {Δ₂} u σ₁) σ₂ with is++S {Δ₁}{Δ₂} σ₂
+... | (Λ₁ , Λ₂ , refl , σ₂₁ , σ₂₂ , refl) =
+  trans (cong (ssub (psub u σ₂₁)) (psub-comp t σ₁ σ₂₂))
+    (sym (psub-ssub u (psub t σ₁) σ₂₁ σ₂₂))
+psub-comp (⊸i t) σ₁ σ₂ =
+  cong ⊸i
+    (trans (cong (psub t) (sym (compS++ σ₁ (uf ax ∷ []) σ₂ (uf ax ∷ []))))
+           (psub-comp t (σ₁ ++S (uf ax ∷ [])) (σ₂ ++S (uf ax ∷ []))))
+psub-comp (⊸e {Δ = Δ} t u) σ₁ σ₂ with is++S {_}{Δ} σ₁
+psub-comp (⊸e {Δ = Δ} t u) _ σ₂ | _ , Λ , refl , σ₁ , ρ₁ , refl with is++S {_}{Λ} σ₂
+psub-comp (⊸e {Δ = Δ} t u) _ _ | _ , Λ , refl , σ₁ , ρ₁ , refl | _ , _ , refl , σ₂ , ρ₂ , refl
+  rewrite compS++ σ₁ ρ₁ σ₂ ρ₂ | ++Sis++S (σ₂ ∘S σ₁) (ρ₂ ∘S ρ₁) =
+    cong₂ ⊸e (psub-comp t σ₁ σ₂) (psub-comp u ρ₁ ρ₂)
 
 
 -- =======================================================================
@@ -356,6 +411,10 @@ evalCid [] γ = refl
 evalCid (A ∷ Γ) (_ , _ , refl , a , γ) =
   cong (λ x → _ , _ , refl , a , x) (evalCid Γ γ)
 
+evalSCid : ∀ {S T Γ Λ} (γ : ⟦ S ∣ Γ ⟧ T Λ) → evalSC (idS Γ) γ ≡ γ
+evalSCid {nothing} (refl , γ) = cong (refl ,_) (evalCid _ γ)
+evalSCid {just A} (Δ₁ , Δ₂ , refl , a , γ) rewrite evalCid _ γ = refl
+
 -- Evaluation preserves ⟦++⟧C
 
 evalC++ : ∀{Γ₁ Γ₂ Δ₁ Δ₂ Λ₁ Λ₂}
@@ -367,26 +426,44 @@ evalC++ (_∷_ {Δ₂ = Δ₂} t σ₁) σ₂ δ₁ δ₂ with is⟦++⟧C {_}{�
 evalC++ (_∷_ {Δ₂ = Δ₂} t σ₁) σ₂ _ δ₂ | _ , _ , refl , δ , δ₁ , refl rewrite ⟦++⟧Cis⟦++⟧C δ (δ₁ ⟦++⟧C δ₂) =
   cong (λ x → _ , _ , refl , eval t (refl , δ) , x) (evalC++ σ₁ σ₂ δ₁ δ₂)
 
+evalSC++ : ∀{S T Γ₁ Γ₂ Δ₁ Δ₂ Λ₁ Λ₂}
+  → (σ₁ : Sub Γ₁ Δ₁) (σ₂ : Sub Γ₂ Δ₂)
+  → (δ₁ : ⟦ S ∣ Δ₁ ⟧ T Λ₁) (δ₂ : ⟦ Δ₂ ⟧C Λ₂)
+  → evalSC (σ₁ ++S σ₂) (δ₁ ⟦++⟧ δ₂) ≡ evalSC σ₁ δ₁ ⟦++⟧ evalC σ₂ δ₂
+evalSC++ σ₁ σ₂ δ₁ δ₂ = {!!}
+
 -- Evaluating a substituted term
 
 
+eval-ssub : ∀{S Γ₁ Γ₂ T Λ₁ Λ₂ A C}
+  → (t : S ∣ Γ₁ ⊢ A) (u : just A ∣ Γ₂ ⊢ C) 
+  → (γ₁ : ⟦ S ∣ Γ₁ ⟧ T Λ₁) (γ₂ : ⟦ Γ₂ ⟧C Λ₂) 
+  → eval (ssub t u) (γ₁ ⟦++⟧ γ₂) ≡ eval u (Λ₁ , Λ₂ , refl , eval t γ₁ , γ₂)
 eval-psub : ∀{S}{Γ}{Δ}{T}{Λ}{A} (t : S ∣ Γ ⊢ A) (σ : Sub Γ Δ) (δ : ⟦ S ∣ Δ ⟧ T Λ) 
-  → eval (psub t σ) δ ≡ eval t (evalSC {S} σ δ) --(evalC ? ?)
-eval-psub t σ δ = {!!}
-{-  
-eval-psub ax (t ∷ []) δ rewrite ⟦++⟧Cis⟦++⟧C δ refl = refl
-eval-psub (⊸i t) σ δ =
-  ifunext (λ _ → ifunext (λ _ → funext (λ { refl → funext (λ a →
-    trans (eval-psub t (σ ++S (ax ∷ [])) (δ ⟦++⟧C (_ , [] , refl , a , refl)))
-          (cong (eval t) (evalC++ σ (ax ∷ []) δ (_ , [] , refl , a , refl)))) })))
-eval-psub (⊸e {Δ = Δ} t u) σ δ with is++S {_}{Δ} σ
-eval-psub (⊸e {Δ = Δ} t u) _ δ | _ , Λ , refl , σ₁ , σ₂ , refl with is⟦++⟧C {_}{Λ} δ
-eval-psub (⊸e {Δ = Δ} t u) _ _ | _ , Λ , refl , σ₁ , σ₂ , refl | _ , _ , refl , δ₁ , δ₂ , refl
-  rewrite evalC++ σ₁ σ₂ δ₁ δ₂ | ⟦++⟧Cis⟦++⟧C (evalC σ₁ δ₁) (evalC σ₂ δ₂) =
-  trans (cong (eval (psub t σ₁) δ₁ refl) (eval-psub u σ₂ δ₂))
-        (cong (λ f → f refl (eval u (evalC σ₂ δ₂))) (eval-psub t σ₁ δ₁))
--}
+  → eval (psub t σ) δ ≡ eval t (evalSC {S} σ δ)
 
+eval-ssub t ax γ₁ refl = {!!}
+eval-ssub t (⊸i u) γ₁ γ₂ =
+  ifunext (λ Δ → funext (λ a →
+    trans (cong (eval (ssub t u)) {!!})
+      (eval-ssub t u γ₁ _)))
+eval-ssub t (⊸e {Γ = Γ} {Δ} u u₁) γ₁ γ₂ with is⟦++⟧C {Γ}{Δ} γ₂
+... | (Λ₁ , Λ₂ , refl , γ₂₁ , γ₂₂ , refl) = {!⟦++⟧is⟦++⟧ !}
+
+eval-psub ax [] (Δ₁ , Δ₂ , refl , a , refl) = refl
+eval-psub (uf t) (_∷_ {Δ₁ = Δ₁} {Δ₂} u σ) (refl , δ) with is⟦++⟧C {Δ₁}{Δ₂} δ
+... | (Λ₁ , Λ₂ , refl , δ₁ , δ₂ , refl) =
+  trans (eval-ssub u (psub t σ) (refl , δ₁) δ₂) (eval-psub t σ _)
+eval-psub (⊸i t) σ δ = 
+  ifunext (λ _ → funext (λ a →
+    trans (eval-psub t (σ ++S (uf ax ∷ [])) (δ ⟦++⟧ (_ , [] , refl , a , refl)))
+          (cong (eval t) (evalSC++ σ (uf ax ∷ []) δ (_ , [] , refl , a , refl)))))
+eval-psub (⊸e {Δ = Δ} t u) σ δ with is++S {_}{Δ} σ
+eval-psub (⊸e {Δ = Δ} t u) _ δ | _ , Λ , refl , σ₁ , σ₂ , refl with is⟦++⟧ {_}{_}{Λ} δ
+eval-psub (⊸e {Δ = Δ} t u) _ _ | _ , Λ , refl , σ₁ , σ₂ , refl | _ , _ , refl , δ₁ , δ₂ , refl
+  rewrite evalSC++ σ₁ σ₂ δ₁ δ₂ | ⟦++⟧is⟦++⟧ (evalSC σ₁ δ₁) (evalC σ₂ δ₂) = 
+  trans (cong (eval (psub t σ₁) δ₁) (eval-psub u σ₂ (refl , δ₂)))
+        (cong (λ f → f (eval u (refl , evalC σ₂ δ₂))) (eval-psub t σ₁ δ₁))
 
 -- =======================================================================
 
@@ -409,7 +486,10 @@ eq-sound-eval sγ (⊸e {Γ = Γ} {Δ} {t = t}{t'}{u}{u'} eq eq₁)
   trans (cong (eval t γ₁) (eq-sound-eval (refl , γ₂) eq₁))
     (cong (λ x → x (eval u' (refl , γ₂))) (eq-sound-eval γ₁ eq))
 eq-sound-eval sγ (beta {Γ = Γ} {Δ}) with is⟦++⟧ {Γ₁ = Γ}{Δ} sγ
-... | (Λ₁ , Λ₂ , refl , γ₁ , γ₂ , refl) = {!!}
+eq-sound-eval .(γ₁ ⟦++⟧ γ₂) (beta {Γ = Γ} {Δ} {t = t} {u}) | Λ₁ , Λ₂ , refl , γ₁ , γ₂ , refl with evalSC++ (idS Γ) (u ∷ []) γ₁ γ₂
+... | p rewrite ⟦++⟧Cis⟦++⟧C {Δ}{[]}{Λ₂}{[]} γ₂ refl =
+  sym (trans (eval-psub t (idS Γ ++S (u ∷ [])) (γ₁ ⟦++⟧ γ₂))
+             (cong (eval t) (trans p (cong (λ z → z ⟦++⟧ (_ , _ , refl , eval u (refl , γ₂) , refl)) (evalSCid γ₁)))))
 eq-sound-eval {T = T} {Δ = Δ} sγ (eta {S}{Γ}{A}{B}) =
   ifunext (λ Λ → funext (lem refl))
   where
@@ -422,15 +502,6 @@ eq-sound-eval (refl , Δ₁ , Δ₂ , refl , a , sγ) (⊸euf {Γ} {Δ})
   with is⟦++⟧C {Γ}{Δ} sγ
 ... | (Λ₁ , Λ₂ , refl , γ₁ , γ₂ , refl) = refl
 eq-sound-eval (refl , Δ₁ , Δ₂ , refl , a , γ) ⊸iuf = refl
-
-{-
-eq-sound-eval {γ = γ} (beta {Γ} {Δ}) with is⟦++⟧C {Γ} {Δ} γ
-eq-sound-eval (beta {Γ} {t = t} {u}) | _ , _ , refl , γ₁ , γ₂ , refl with evalC++ (idS Γ) (u ∷ []) γ₁ γ₂
-... | p rewrite ⟦++⟧Cis⟦++⟧C γ₂ refl =
-  sym (trans (eval-psub t (idS Γ ++S (u ∷ [])) (γ₁ ⟦++⟧C γ₂))
-             (cong (eval t) (trans p (cong (λ z → z ⟦++⟧C (_ , _ , refl , eval u γ₂ , refl)) (evalCid Γ γ₁)))))
-
--}
 
 -- =======================================================================
 
@@ -536,22 +607,39 @@ is++R (t ∷ σ₁) σ₂ (_ , _ , .refl , a , _) (r ∷ _) | δ₁ , δ₂ , re
 -- Correcteness of evaluation
 
 
-corr-eval2 : ∀{S}{Γ}{Δ}{A}{C} (t : S ∣ Γ ⊢ A) (u : just A ∣ Δ ⊢ C) (c :  ⟦ C ⟧ (just A) Δ) 
-  → R u c → R (ssub t u) (eval u (Γ , Δ , refl , eval t (⟦id⟧ S Γ) , ⟦id⟧C Δ))
-corr-eval2 t u c r = {!!}
-
+corr-eval2 : ∀{S}{Γ}{Δ}{Λ}{A}{C} (t : S ∣ Γ ⊢ A) (a : ⟦ A ⟧ S Γ) 
+  → (u : just A ∣ Δ ⊢ C) (σ : Sub Δ Λ) (δ : ⟦ Δ ⟧C Λ)
+  → R t a → RC σ δ
+  → R (ssub t (psub u σ)) (eval u (Γ , Λ , refl , a , δ))
 corr-eval : ∀{S}{Γ}{Δ}{A} (t : S ∣ Γ ⊢ A) (σ : Sub Γ Δ) (γ : ⟦ Γ ⟧C Δ)
   → RC σ γ → R (psub t σ) (eval t (⟦emb⟧ γ)) 
+
+corr-eval2 t a ax [] refl r rs = r
+corr-eval2 {Γ = Γ}{Δ₁}{Λ} t a (⊸i u) σ δ r rs {Δ} {v} r' =
+    subst-R
+      (beta
+      ∙ ≡-to-≑' (psub-ssub t (psub u (σ ++S (uf ax ∷ []))) (idS Γ) (idS Λ ++S (v ∷ [])))
+      ∙ congssub {Γ = Γ}{Λ ++ Δ} (psub-id t) (~ (≡-to-≑' (psub-comp u _ _))
+      ∙ congpsub2 u (subst (λ x → x S≑' (σ ++S (v ∷ []))) (sym (compS++ σ (uf ax ∷ []) (idS Λ) (v ∷ []))) (cong++S1 (lidS σ) (v ∷ [])))))
+--      (cong₂ ssub (psub-id t) (sym (trans (cong (psub u)
+--                     (trans (cong (_++S v ∷ []) (sym (lidS σ))) (sym (compS++ σ (uf ax ∷ []) (idS Λ) (v ∷ []))))) (psub-comp u _ _))) )))
+    (corr-eval2 t a u (σ ++S v ∷ []) (δ ⟦++⟧C (Δ , [] , refl , _ , refl)) r (rs ++R (r' ∷ [])))
+corr-eval2 t a (⊸e {Γ = Γ} {Δ} u u₁) σ δ r rs with is++S {Γ}{Δ} σ
+corr-eval2 t a (⊸e u v) σ δ r rs | (Λ₁ , Λ₂ , refl , σ₁ , σ₂ , refl) with is++R σ₁ σ₂ δ rs
+... | (δ₁ , δ₂ , refl , rs₁ , rs₂ , refl)
+  rewrite ⟦++⟧Cis⟦++⟧C δ₁ δ₂ = corr-eval2 t a u σ₁ δ₁ r rs₁ (corr-eval v σ₂ δ₂ rs₂)
+
 corr-eval ax [] _ [] = corr-reflect
-corr-eval (uf t) (u ∷ σ) (Δ₁ , Δ₂ , .refl , a , γ) (r ∷ rs) = {!!}
---   subst (R (ssub u (psub t σ)))
---     (trans (eval-psub t σ _) {!cong₂ (λ x y → eval t (Δ₁ , Δ₂ , refl , x , y)) !})
---     (corr-eval2 u (psub t σ) _ (corr-eval t σ γ rs))
+corr-eval (uf t) (u ∷ σ) (Δ₁ , Δ₂ , .refl , a , γ) (r ∷ rs) =
+  corr-eval2 u a t σ γ r rs
 corr-eval {Δ = Δ} (⊸i t) σ γ rs {_}{u} {a} r =
   subst-R
-    (beta ∙ ≡-to-≑' (sym (trans (cong (psub t) (sym (trans (compS++ σ (uf ax ∷ []) (idS Δ) (u ∷ []))
-                                                           (cong (λ x → x ++S ((u ∷ []) ∘S (uf ax ∷ []))) (lidS σ)))))
-                                (psub-comp t _ _))))
+    (beta
+    ∙ ~ (≡-to-≑' (psub-comp t (σ ++S (uf ax ∷ [])) (idS Δ ++S (u ∷ []))))
+    ∙ congpsub2 t (subst (λ x → x S≑' (σ ++S (u ∷ []))) (sym (compS++ σ (uf ax ∷ []) (idS Δ) (u ∷ []))) (cong++S1 (lidS σ) (u ∷ []))))
+--     ≡-to-≑' (sym (trans (cong (psub t) (sym (trans (compS++ σ (uf ax ∷ []) (idS Δ) (u ∷ []))
+--                                                            (cong (λ x → x ++S ((u ∷ []) ∘S (uf ax ∷ []))) (lidS σ)))))
+--                                 (psub-comp t _ _))))
     (subst (λ x → R (psub t (σ ++S (u ∷ []))) (eval t x)) (⟦emb⟧++ γ _)
       (corr-eval t (σ ++S (u ∷ [])) _ (rs ++R (r ∷ []))))
 corr-eval (⊸e {Δ = Δ} t u) σ γ rs with is++S {_}{Δ} σ 
@@ -564,6 +652,6 @@ corr-eval (⊸e {S} {Δ = Δ} t u) _ _ _ | _ , _ , refl , σ₁ , σ₂ , refl |
 
 corr-norm : ∀{S Γ A} (t : S ∣ Γ ⊢ A) → t ≑' nf2nd (norm t)
 corr-norm {S}{Γ}{A} t =
-  corr-reify (subst-R (≡-to-≑' (sym (psub-id t)))
+  corr-reify (subst-R (~ (psub-id t))
     (subst (λ x → R (psub t (idS Γ)) (eval t x)) (⟦emb⟧id S Γ)
       (corr-eval t (idS Γ) (⟦id⟧C Γ) (idR Γ)))) 
