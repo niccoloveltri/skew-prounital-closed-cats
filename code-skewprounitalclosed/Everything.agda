@@ -26,3 +26,5 @@ open import Focusing
 open import HeredSubs
 
 open import Compare
+
+open import NbE

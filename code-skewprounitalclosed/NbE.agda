@@ -16,7 +16,7 @@ open ≡-Reasoning
 open import Utilities
 open import Formulae
 open import Compare
-open import HeredSubs
+open import HeredSubs renaming (_≑_ to _≑'_; ≡-to-≑ to ≡-to-≑')
 
 -- Substitutions
 
@@ -85,72 +85,59 @@ psub (⊸e {Γ = Γ} {Δ} t u) σ with is++S {Γ}{Δ} σ
 
 -- Equational theory of terms
 
-data _≑'_ : {S : Stp}{Γ : Cxt}{A : Fma} → S ∣ Γ ⊢ A → S ∣ Γ ⊢ A → Set where
-  refl : ∀{S}{Γ}{A}{t : S ∣ Γ ⊢ A} → t ≑' t
-  ~_ : ∀{S}{Γ}{A}{t u : S ∣ Γ ⊢ A} → t ≑' u → u ≑' t
-  _∙_ : ∀{S}{Γ}{A}{t u v : S ∣ Γ ⊢ A} → t ≑' u → u ≑' v → t ≑' v
-  ⊸i : ∀{S}{Γ}{A}{B}{t u : S ∣ Γ ++ A ∷ [] ⊢ B} → t ≑' u → ⊸i t ≑' ⊸i u
+data _≑_ : {S : Stp}{Γ : Cxt}{A : Fma} → S ∣ Γ ⊢ A → S ∣ Γ ⊢ A → Set where
+  refl : ∀{S}{Γ}{A}{t : S ∣ Γ ⊢ A} → t ≑ t
+  ~_ : ∀{S}{Γ}{A}{t u : S ∣ Γ ⊢ A} → t ≑ u → u ≑ t
+  _∙_ : ∀{S}{Γ}{A}{t u v : S ∣ Γ ⊢ A} → t ≑ u → u ≑ v → t ≑ v
+  ⊸i : ∀{S}{Γ}{A}{B}{t u : S ∣ Γ ++ A ∷ [] ⊢ B} → t ≑ u → ⊸i t ≑ ⊸i u
   ⊸e : ∀{S}{Γ}{Δ}{A}{B}{t t' : S ∣ Γ ⊢ A ⊸ B}{u u' : nothing ∣ Δ ⊢ A}
-    → t ≑' t' → u ≑' u' → ⊸e t u ≑' ⊸e t' u'
-  uf : ∀{Γ}{A}{C}{t u : just A ∣ Γ ⊢ C} → t ≑' u → uf t ≑' uf u
+    → t ≑ t' → u ≑ u' → ⊸e t u ≑ ⊸e t' u'
+  uf : ∀{Γ}{A}{C}{t u : just A ∣ Γ ⊢ C} → t ≑ u → uf t ≑ uf u
   beta : ∀{S}{Γ}{Δ}{A}{B} {t : S ∣  Γ ++ A ∷ [] ⊢ B} {u : nothing ∣ Δ ⊢ A}
-    → ⊸e (⊸i t) u ≑' psub t (idS Γ ++S u ∷ [])
-  eta : ∀{S}{Γ}{A}{B} {t : S ∣ Γ ⊢ A ⊸ B} → t ≑' ⊸i (⊸e t (uf ax))
+    → ⊸e (⊸i t) u ≑ psub t (idS Γ ++S u ∷ [])
+  eta : ∀{S}{Γ}{A}{B} {t : S ∣ Γ ⊢ A ⊸ B} → t ≑ ⊸i (⊸e t (uf ax))
   ⊸euf : ∀{Γ}{Δ}{A}{A'}{B}{t : just A' ∣ Γ ⊢ A ⊸ B}{u : nothing ∣ Δ ⊢ A}
-    → ⊸e (uf t) u ≑' uf (⊸e t u)
+    → ⊸e (uf t) u ≑ uf (⊸e t u)
   ⊸iuf : ∀{Γ}{A}{A'}{B}{t : just A' ∣ Γ ++ A ∷ [] ⊢ B}
-    → ⊸i (uf t) ≑' uf (⊸i t)
+    → ⊸i (uf t) ≑ uf (⊸i t)
 
-≡-to-≑' : ∀{S Γ A} {t u : S ∣ Γ ⊢ A} → t ≡ u → t ≑' u
-≡-to-≑' refl = refl
+≡-to-≑ : ∀{S Γ A} {t u : S ∣ Γ ⊢ A} → t ≡ u → t ≑ u
+≡-to-≑ refl = refl
 
-data _S≑'_ : {Γ Δ : Cxt} → Sub Γ Δ → Sub Γ Δ → Set where
-  [] : [] S≑' []
+data _S≑_ : {Γ Δ : Cxt} → Sub Γ Δ → Sub Γ Δ → Set where
+  [] : [] S≑ []
   _∷_ : ∀{Γ Δ₁ Δ₂ A} {t t' : nothing ∣ Δ₂ ⊢ A} {σ σ' : Sub Γ Δ₁}
-    → t ≑' t' → σ S≑' σ'
-    → (t ∷ σ) S≑' (t' ∷ σ')
+    → t ≑ t' → σ S≑ σ'
+    → (t ∷ σ) S≑ (t' ∷ σ')
 
-reflS≑' : {Γ Δ : Cxt} (σ : Sub Γ Δ) → σ S≑' σ
-reflS≑' [] = []
-reflS≑' (x ∷ σ) = refl ∷ reflS≑' σ
+reflS≑ : {Γ Δ : Cxt} (σ : Sub Γ Δ) → σ S≑ σ
+reflS≑ [] = []
+reflS≑ (x ∷ σ) = refl ∷ reflS≑ σ
 
-cong++S1 : ∀{Γ₁ Γ₂ Δ₁ Δ₂} {σ₁ σ₂ : Sub Γ₁ Δ₁} → σ₁ S≑' σ₂
+cong++S1 : ∀{Γ₁ Γ₂ Δ₁ Δ₂} {σ₁ σ₂ : Sub Γ₁ Δ₁} → σ₁ S≑ σ₂
   → (σ : Sub Γ₂ Δ₂)
-  → (σ₁ ++S σ) S≑' (σ₂ ++S σ)
-cong++S1 [] σ = reflS≑' σ
+  → (σ₁ ++S σ) S≑ (σ₂ ++S σ)
+cong++S1 [] σ = reflS≑ σ
 cong++S1 (x ∷ eq) σ = x ∷ (cong++S1 eq σ)
 
 cong++S2 : ∀{Γ₁ Γ₂ Δ₁ Δ₂} (σ : Sub Γ₁ Δ₁) {σ₁ σ₂ : Sub Γ₂ Δ₂}
-  → σ₁ S≑' σ₂ → (σ ++S σ₁) S≑' (σ ++S σ₂)
+  → σ₁ S≑ σ₂ → (σ ++S σ₁) S≑ (σ ++S σ₂)
 cong++S2 [] eq = eq
 cong++S2 (x ∷ σ) eq = refl ∷ (cong++S2 σ eq)  
 
 is++S' : ∀{Γ₁ Γ₂ Δ₁ Δ₂} (σ₁ : Sub Γ₁ Δ₁) (σ₂ : Sub Γ₂ Δ₂) (σ : Sub (Γ₁ ++ Γ₂) (Δ₁ ++ Δ₂))
-  → (σ₁ ++S σ₂) S≑' σ
-  → Σ (Sub Γ₁ Δ₁) λ σ₁' → Σ (Sub Γ₂ Δ₂) λ σ₂' → σ ≡ σ₁' ++S σ₂' × σ₁ S≑' σ₁' × σ₂ S≑' σ₂'
+  → (σ₁ ++S σ₂) S≑ σ
+  → Σ (Sub Γ₁ Δ₁) λ σ₁' → Σ (Sub Γ₂ Δ₂) λ σ₂' → σ ≡ σ₁' ++S σ₂' × σ₁ S≑ σ₁' × σ₂ S≑ σ₂'
 is++S' [] σ₂ σ eq = [] , σ , refl , [] , eq
 is++S' (t ∷ σ₁) σ₂ ._ (eq ∷ eqs) with is++S' σ₁ σ₂ _ eqs
 ... | (σ₁' , σ₂' , refl , eq1 , eq2) = _ ∷ σ₁' , σ₂' , refl , eq ∷ eq1 , eq2
 
-congssub : ∀{S Γ Δ A C} {t t' : S ∣ Γ ⊢ A} {u u' : just A ∣ Δ ⊢ C}
-  → t ≑' t' → u ≑' u' → ssub t u ≑' ssub t' u'
-congssub eq eq2 = {!!}
-
-congpsub2 : ∀{S Γ Δ A} (t : S ∣ Γ ⊢ A) {σ σ' : Sub Γ Δ}
-  → σ S≑' σ' → psub t σ ≑' psub t σ'
-congpsub2 ax [] = refl
-congpsub2 (uf t) (eq ∷ eq2) = congssub eq (congpsub2 t eq2)
-congpsub2 (⊸i t) eq = ⊸i (congpsub2 t (cong++S1 eq (uf ax ∷ [])))
-congpsub2 (⊸e {_}{Γ}{Δ} t u) {σ}{σ'} eq with is++S {Γ}{Δ} σ 
-congpsub2 (⊸e t u) {σ' = σ'} eq | (Λ₁ , Λ₂ , refl , σ₁ , σ₂ , refl) with is++S' σ₁ σ₂ σ' eq
-... | (σ₁' , σ₂' , refl , eq1 , eq2) rewrite ++Sis++S σ₁' σ₂'
-  = ⊸e (congpsub2 t eq1) (congpsub2 u eq2)
 
 
 -- Substituting with the identity psubstitution
 
 ssub-uf : ∀{Γ Δ A' A C} (t : just A' ∣ Γ ⊢ A) (u : just A ∣ Δ ⊢ C)
-  → ssub (uf t) u ≑' uf (ssub t u)
+  → ssub (uf t) u ≑ uf (ssub t u)
 ssub-uf t ax = refl
 ssub-uf t (⊸i u) =
   ⊸i (ssub-uf t u) ∙ ⊸iuf
@@ -162,12 +149,12 @@ ssub-id ax = refl
 ssub-id (⊸i t) = cong ⊸i (ssub-id t)
 ssub-id (⊸e {Γ = Γ}{Δ} t t₁) = cong₂ (⊸e {Γ = Γ}{Δ}) (ssub-id t) refl
 
-psub-id : ∀{S Γ A} (t : S ∣ Γ ⊢ A) → psub t (idS Γ) ≑' t
+psub-id : ∀{S Γ A} (t : S ∣ Γ ⊢ A) → psub t (idS Γ) ≑ t
 psub-id ax = refl
 psub-id (uf t) =
-  ssub-uf ax _ ∙ uf (≡-to-≑' (ssub-id _) ∙ psub-id t)
+  ssub-uf ax _ ∙ uf (≡-to-≑ (ssub-id _) ∙ psub-id t)
 psub-id {Γ = Γ} (⊸i {A = A} t) =
-  ⊸i (≡-to-≑' (cong (psub t) (sym (idS++ Γ (A ∷ [])))) ∙ psub-id t)
+  ⊸i (≡-to-≑ (cong (psub t) (sym (idS++ Γ (A ∷ [])))) ∙ psub-id t)
 psub-id (⊸e {Γ = Γ} {Δ} t u) rewrite idS++ Γ Δ | ++Sis++S (idS Γ) (idS Δ) =
   ⊸e (psub-id t) (psub-id u)
 
@@ -178,7 +165,7 @@ _∘S_ : ∀ {Γ Δ Λ} → Sub Δ Λ → Sub Γ Δ → Sub Γ Λ
 ρ ∘S _∷_ {Δ₂ = Δ₂} t σ with is++S {_}{Δ₂} ρ
 (_ ∘S (t ∷ σ)) | _ , _ , refl , ρ , ρ' , refl = psub t ρ ∷ (ρ' ∘S σ)
 
-lidS : ∀ {Γ Δ} (σ : Sub Γ Δ) → (idS Δ ∘S σ) S≑' σ
+lidS : ∀ {Γ Δ} (σ : Sub Γ Δ) → (idS Δ ∘S σ) S≑ σ
 lidS [] = []
 lidS (_∷_ {Γ = Γ}{Δ₁} {Δ₂} t σ) rewrite idS++ Δ₁ Δ₂ | ++Sis++S (idS Δ₁) (idS Δ₂) =
    (psub-id t) ∷ (lidS σ) 
@@ -223,6 +210,39 @@ psub-comp (⊸e {Δ = Δ} t u) _ _ | _ , Λ , refl , σ₁ , ρ₁ , refl | _ , 
   rewrite compS++ σ₁ ρ₁ σ₂ ρ₂ | ++Sis++S (σ₂ ∘S σ₁) (ρ₂ ∘S ρ₁) =
     cong₂ ⊸e (psub-comp t σ₁ σ₂) (psub-comp u ρ₁ ρ₂)
 
+congssub1 : ∀{S Γ Δ A C} {t t' : S ∣ Γ ⊢ A} → t ≑ t'
+  → (u : just A ∣ Δ ⊢ C) → ssub t u ≑ ssub t' u
+congssub1 eq ax = eq
+congssub1 eq (⊸i u) = ⊸i (congssub1 eq u)
+congssub1 eq (⊸e u u₁) = ⊸e (congssub1 eq u) refl
+
+congssub2 : ∀{S Γ Δ A C} (t : S ∣ Γ ⊢ A) {u u' : just A ∣ Δ ⊢ C}
+  → u ≑ u' → ssub t u ≑ ssub t u'
+congssub2 t refl = refl
+congssub2 t (~ eq) = ~ congssub2 t eq
+congssub2 t (eq ∙ eq₁) = congssub2 t eq ∙ congssub2 t eq₁
+congssub2 t (⊸i eq) = ⊸i (congssub2 t eq)
+congssub2 t (⊸e eq eq₁) = ⊸e (congssub2 t eq) eq₁
+congssub2 {Γ = Γ} t (beta {Γ = Γ₁} {t = t₁} {u}) =
+  beta
+  ∙ ≡-to-≑ (psub-ssub t t₁ (idS Γ) (idS Γ₁ ++S (u ∷ [])))
+  ∙ congssub1 (psub-id t) (psub t₁ (idS Γ₁ ++S (u ∷ [])))
+congssub2 t eta = eta  
+
+congssub : ∀{S Γ Δ A C} {t t' : S ∣ Γ ⊢ A} {u u' : just A ∣ Δ ⊢ C}
+  → t ≑ t' → u ≑ u' → ssub t u ≑ ssub t' u'
+congssub {t' = t'} {u} eq eq2 =
+  congssub1 eq u ∙ congssub2 t' eq2
+
+congpsub2 : ∀{S Γ Δ A} (t : S ∣ Γ ⊢ A) {σ σ' : Sub Γ Δ}
+  → σ S≑ σ' → psub t σ ≑ psub t σ'
+congpsub2 ax [] = refl
+congpsub2 (uf t) (eq ∷ eq2) = congssub eq (congpsub2 t eq2)
+congpsub2 (⊸i t) eq = ⊸i (congpsub2 t (cong++S1 eq (uf ax ∷ [])))
+congpsub2 (⊸e {_}{Γ}{Δ} t u) {σ}{σ'} eq with is++S {Γ}{Δ} σ 
+congpsub2 (⊸e t u) {σ' = σ'} eq | (Λ₁ , Λ₂ , refl , σ₁ , σ₂ , refl) with is++S' σ₁ σ₂ σ' eq
+... | (σ₁' , σ₂' , refl , eq1 , eq2) rewrite ++Sis++S σ₁' σ₂'
+  = ⊸e (congpsub2 t eq1) (congpsub2 u eq2)
 
 -- =======================================================================
 
@@ -358,8 +378,22 @@ is⟦++⟧ {just A} {Γ₁} {Γ₂} (Δ₁ , Δ₂ , refl , a , γ) with is⟦++
 ⟦++⟧Cru {A ∷ Γ} (_ , _ , refl , γ , γ') =
   cong (λ x → _ , _ , refl , γ , x) (⟦++⟧Cru γ')
 
-{-# REWRITE ⟦++⟧Cass #-}
+⟦++⟧ru : ∀ {S Γ Δ T} (γ : ⟦ S ∣ Γ ⟧ T Δ) → _⟦++⟧_ {S}{T}{Γ}{[]} γ refl ≡ γ 
+⟦++⟧ru {nothing} (refl , γ) = cong (refl ,_) (⟦++⟧Cru γ)
+⟦++⟧ru {just A} (Γ , Δ , refl , a , γ) =
+  cong (λ x → Γ , Δ , refl , a , x) (⟦++⟧Cru γ)
+
+⟦++⟧ass : ∀ {S T Γ₁ Γ₂ Γ₃ Δ₁ Δ₂ Δ₃}
+  → (γ₁ : ⟦ S ∣ Γ₁ ⟧ T Δ₁) (γ₂ : ⟦ Γ₂ ⟧C Δ₂) (γ₃ : ⟦ Γ₃ ⟧C Δ₃)
+  → (γ₁ ⟦++⟧ γ₂) ⟦++⟧ γ₃ ≡ γ₁ ⟦++⟧ (γ₂ ⟦++⟧C γ₃)
+⟦++⟧ass {nothing} (refl , γ₁) γ₂ γ₃ = cong (refl ,_) (⟦++⟧Cass γ₁ γ₂ γ₃)
+⟦++⟧ass {just A} (Γ , Δ , refl , a , γ₁) γ₂ γ₃ =
+  cong (λ x → Γ , _ , refl , a , x) (⟦++⟧Cass γ₁ γ₂ γ₃)
+
 {-# REWRITE ⟦++⟧Cru #-}
+
+
+
 
 eval : ∀{S Γ C T Δ} → S ∣ Γ ⊢ C → ⟦ S ∣ Γ ⟧ T Δ → ⟦ C ⟧ T Δ
 eval ax (_ , _ , refl , c , refl) = c
@@ -423,14 +457,18 @@ evalC++ : ∀{Γ₁ Γ₂ Δ₁ Δ₂ Λ₁ Λ₂}
   → evalC (σ₁ ++S σ₂) (δ₁ ⟦++⟧C δ₂) ≡ evalC σ₁ δ₁ ⟦++⟧C evalC σ₂ δ₂
 evalC++ [] σ₂ refl δ₂ = refl
 evalC++ (_∷_ {Δ₂ = Δ₂} t σ₁) σ₂ δ₁ δ₂ with is⟦++⟧C {_}{Δ₂} δ₁
-evalC++ (_∷_ {Δ₂ = Δ₂} t σ₁) σ₂ _ δ₂ | _ , _ , refl , δ , δ₁ , refl rewrite ⟦++⟧Cis⟦++⟧C δ (δ₁ ⟦++⟧C δ₂) =
+evalC++ (_∷_ {Δ₂ = Δ₂} t σ₁) σ₂ _ δ₂ | _ , _ , refl , δ , δ₁ , refl
+  rewrite ⟦++⟧Cass δ δ₁ δ₂ | ⟦++⟧Cis⟦++⟧C δ (δ₁ ⟦++⟧C δ₂) =
   cong (λ x → _ , _ , refl , eval t (refl , δ) , x) (evalC++ σ₁ σ₂ δ₁ δ₂)
 
 evalSC++ : ∀{S T Γ₁ Γ₂ Δ₁ Δ₂ Λ₁ Λ₂}
   → (σ₁ : Sub Γ₁ Δ₁) (σ₂ : Sub Γ₂ Δ₂)
   → (δ₁ : ⟦ S ∣ Δ₁ ⟧ T Λ₁) (δ₂ : ⟦ Δ₂ ⟧C Λ₂)
   → evalSC (σ₁ ++S σ₂) (δ₁ ⟦++⟧ δ₂) ≡ evalSC σ₁ δ₁ ⟦++⟧ evalC σ₂ δ₂
-evalSC++ σ₁ σ₂ δ₁ δ₂ = {!!}
+evalSC++ {nothing} σ₁ σ₂ (refl , δ₁) δ₂ = cong (refl ,_) (evalC++ σ₁ σ₂ δ₁ δ₂)
+evalSC++ {just A} σ₁ σ₂ (Γ , Δ , refl , a , δ₁) δ₂ =
+  cong (λ x → (Γ , _ , refl , a , x)) (evalC++ σ₁ σ₂ δ₁ δ₂)
+
 
 -- Evaluating a substituted term
 
@@ -442,13 +480,16 @@ eval-ssub : ∀{S Γ₁ Γ₂ T Λ₁ Λ₂ A C}
 eval-psub : ∀{S}{Γ}{Δ}{T}{Λ}{A} (t : S ∣ Γ ⊢ A) (σ : Sub Γ Δ) (δ : ⟦ S ∣ Δ ⟧ T Λ) 
   → eval (psub t σ) δ ≡ eval t (evalSC {S} σ δ)
 
-eval-ssub t ax γ₁ refl = {!!}
+eval-ssub t ax γ₁ refl rewrite ⟦++⟧ru γ₁ = refl
 eval-ssub t (⊸i u) γ₁ γ₂ =
   ifunext (λ Δ → funext (λ a →
-    trans (cong (eval (ssub t u)) {!!})
+    trans (cong (eval (ssub t u)) (⟦++⟧ass γ₁ γ₂ (Δ , [] , refl , a , refl)))
       (eval-ssub t u γ₁ _)))
 eval-ssub t (⊸e {Γ = Γ} {Δ} u u₁) γ₁ γ₂ with is⟦++⟧C {Γ}{Δ} γ₂
-... | (Λ₁ , Λ₂ , refl , γ₂₁ , γ₂₂ , refl) = {!⟦++⟧is⟦++⟧ !}
+... | (Λ₁ , Λ₂ , refl , γ₂₁ , γ₂₂ , refl)
+  rewrite sym (⟦++⟧ass γ₁ γ₂₁ γ₂₂) | ⟦++⟧is⟦++⟧ (γ₁ ⟦++⟧ γ₂₁) γ₂₂
+    = cong (λ x → x (eval u₁ (refl , γ₂₂))) (eval-ssub t u γ₁ γ₂₁)
+
 
 eval-psub ax [] (Δ₁ , Δ₂ , refl , a , refl) = refl
 eval-psub (uf t) (_∷_ {Δ₁ = Δ₁} {Δ₂} u σ) (refl , δ) with is⟦++⟧C {Δ₁}{Δ₂} δ
@@ -470,7 +511,7 @@ eval-psub (⊸e {Δ = Δ} t u) _ _ | _ , Λ , refl , σ₁ , σ₂ , refl | _ , 
 -- The evaluation function is equationally sound
 
 eq-sound-eval : ∀{S T Γ Δ C} {t t' : S ∣ Γ ⊢ C} (sγ : ⟦ S ∣ Γ ⟧ T Δ)
-  → t ≑' t' → eval t sγ ≡ eval t' sγ
+  → t ≑ t' → eval t sγ ≡ eval t' sγ
 eq-sound-eval sγ refl = refl
 eq-sound-eval sγ (~ eq) = sym (eq-sound-eval sγ  eq)
 eq-sound-eval sγ (eq ∙ eq₁) =
@@ -507,7 +548,7 @@ eq-sound-eval (refl , Δ₁ , Δ₂ , refl , a , γ) ⊸iuf = refl
 
 -- The normalization function is equationally sound
 
-eq-sound-norm : ∀{S Γ A} {t t' : S ∣ Γ ⊢ A} → t ≑' t' → norm t ≡ norm t'
+eq-sound-norm : ∀{S Γ A} {t t' : S ∣ Γ ⊢ A} → t ≑ t' → norm t ≡ norm t'
 eq-sound-norm p = cong reify (eq-sound-eval _ p)
 
 -- =======================================================================
@@ -550,13 +591,13 @@ ne-is-norm (⊸e {S}{Γ} {Δ} n m)
 -- -- The logical relation R
 
 R : ∀{S Γ A} → S ∣ Γ ⊢ A → ⟦ A ⟧ S Γ → Set
-R {A = ` X} t n = t ≑' nf2nd n
+R {A = ` X} t n = t ≑ nf2nd n
 R {A = A ⊸ B} t v = ∀ {Δ} {u : nothing ∣ Δ ⊢ A}{x : ⟦ A ⟧ nothing Δ}
       → R u x → R (⊸e t u) (v x)
 
 -- The logical relation is invariant under ≗
 
-subst-R : ∀{S Γ A} {t u : S ∣ Γ ⊢ A} {v : ⟦ A ⟧ S Γ} → t ≑' u → R u v → R t v
+subst-R : ∀{S Γ A} {t u : S ∣ Γ ⊢ A} {v : ⟦ A ⟧ S Γ} → t ≑ u → R u v → R t v
 subst-R {A = ` X} p r = p ∙ r
 subst-R {A = A ⊸ B} p r r' = subst-R (⊸e p refl) (r r')
 
@@ -570,7 +611,7 @@ corr-shift {C = A ⊸ B} r r' = subst-R ⊸euf (corr-shift (r r'))
 corr-reflect : ∀{Γ A C} {n : A ∣ Γ ⊢ne C}
   → R (ne2nd n) (reflect n) 
 corr-reify : ∀{S Γ C} {t : S ∣ Γ ⊢ C} {v : ⟦ C ⟧ S Γ}
-  → R t v → t ≑' nf2nd (reify v)
+  → R t v → t ≑ nf2nd (reify v)
 
 corr-reflect {C = ` X} = refl
 corr-reflect {C = A ⊸ B} r =
@@ -618,11 +659,9 @@ corr-eval2 t a ax [] refl r rs = r
 corr-eval2 {Γ = Γ}{Δ₁}{Λ} t a (⊸i u) σ δ r rs {Δ} {v} r' =
     subst-R
       (beta
-      ∙ ≡-to-≑' (psub-ssub t (psub u (σ ++S (uf ax ∷ []))) (idS Γ) (idS Λ ++S (v ∷ [])))
-      ∙ congssub {Γ = Γ}{Λ ++ Δ} (psub-id t) (~ (≡-to-≑' (psub-comp u _ _))
-      ∙ congpsub2 u (subst (λ x → x S≑' (σ ++S (v ∷ []))) (sym (compS++ σ (uf ax ∷ []) (idS Λ) (v ∷ []))) (cong++S1 (lidS σ) (v ∷ [])))))
---      (cong₂ ssub (psub-id t) (sym (trans (cong (psub u)
---                     (trans (cong (_++S v ∷ []) (sym (lidS σ))) (sym (compS++ σ (uf ax ∷ []) (idS Λ) (v ∷ []))))) (psub-comp u _ _))) )))
+      ∙ ≡-to-≑ (psub-ssub t (psub u (σ ++S (uf ax ∷ []))) (idS Γ) (idS Λ ++S (v ∷ [])))
+      ∙ congssub {Γ = Γ}{Λ ++ Δ} (psub-id t) (~ (≡-to-≑ (psub-comp u _ _))
+      ∙ congpsub2 u (subst (λ x → x S≑ (σ ++S (v ∷ []))) (sym (compS++ σ (uf ax ∷ []) (idS Λ) (v ∷ []))) (cong++S1 (lidS σ) (v ∷ [])))))
     (corr-eval2 t a u (σ ++S v ∷ []) (δ ⟦++⟧C (Δ , [] , refl , _ , refl)) r (rs ++R (r' ∷ [])))
 corr-eval2 t a (⊸e {Γ = Γ} {Δ} u u₁) σ δ r rs with is++S {Γ}{Δ} σ
 corr-eval2 t a (⊸e u v) σ δ r rs | (Λ₁ , Λ₂ , refl , σ₁ , σ₂ , refl) with is++R σ₁ σ₂ δ rs
@@ -632,14 +671,11 @@ corr-eval2 t a (⊸e u v) σ δ r rs | (Λ₁ , Λ₂ , refl , σ₁ , σ₂ , r
 corr-eval ax [] _ [] = corr-reflect
 corr-eval (uf t) (u ∷ σ) (Δ₁ , Δ₂ , .refl , a , γ) (r ∷ rs) =
   corr-eval2 u a t σ γ r rs
-corr-eval {Δ = Δ} (⊸i t) σ γ rs {_}{u} {a} r =
+corr-eval {Δ = Δ} (⊸i t) σ γ rs {_}{u} {a} r = 
   subst-R
     (beta
-    ∙ ~ (≡-to-≑' (psub-comp t (σ ++S (uf ax ∷ [])) (idS Δ ++S (u ∷ []))))
-    ∙ congpsub2 t (subst (λ x → x S≑' (σ ++S (u ∷ []))) (sym (compS++ σ (uf ax ∷ []) (idS Δ) (u ∷ []))) (cong++S1 (lidS σ) (u ∷ []))))
---     ≡-to-≑' (sym (trans (cong (psub t) (sym (trans (compS++ σ (uf ax ∷ []) (idS Δ) (u ∷ []))
---                                                            (cong (λ x → x ++S ((u ∷ []) ∘S (uf ax ∷ []))) (lidS σ)))))
---                                 (psub-comp t _ _))))
+    ∙ ~ (≡-to-≑ (psub-comp t (σ ++S (uf ax ∷ [])) (idS Δ ++S (u ∷ []))))
+    ∙ congpsub2 t (subst (λ x → x S≑ (σ ++S (u ∷ []))) (sym (compS++ σ (uf ax ∷ []) (idS Δ) (u ∷ []))) (cong++S1 (lidS σ) (u ∷ []))))
     (subst (λ x → R (psub t (σ ++S (u ∷ []))) (eval t x)) (⟦emb⟧++ γ _)
       (corr-eval t (σ ++S (u ∷ [])) _ (rs ++R (r ∷ []))))
 corr-eval (⊸e {Δ = Δ} t u) σ γ rs with is++S {_}{Δ} σ 
@@ -650,7 +686,7 @@ corr-eval (⊸e {S} {Δ = Δ} t u) _ _ _ | _ , _ , refl , σ₁ , σ₂ , refl |
 
 -- Correctness of normalization
 
-corr-norm : ∀{S Γ A} (t : S ∣ Γ ⊢ A) → t ≑' nf2nd (norm t)
+corr-norm : ∀{S Γ A} (t : S ∣ Γ ⊢ A) → t ≑ nf2nd (norm t)
 corr-norm {S}{Γ}{A} t =
   corr-reify (subst-R (~ (psub-id t))
     (subst (λ x → R (psub t (idS Γ)) (eval t x)) (⟦emb⟧id S Γ)
