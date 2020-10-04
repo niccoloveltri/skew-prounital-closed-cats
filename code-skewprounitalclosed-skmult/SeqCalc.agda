@@ -583,73 +583,114 @@ cong-ccut Δ₀ {g = g} r p q = cong-ccut1 Δ₀ g r p  ∙ cong-ccut2 Δ₀ r q
 -- cong-ccut1 {S} {Γ = Γ₁} Δ₀ {.(Γ₀ ++ _ ⊸ _ ∷ Γ ++ Δ₂)} (⊸c .(Δ₀ ++ A ∷ Γ₀) {Γ} {Δ₂} g g₁) refl p | inj₂ (A ∷ Γ₀ , refl , refl) =
 --   ⊸c (Δ₀ ++ asCxt S Γ₁ ++ Γ₀) refl (cong-ccut1 Δ₀ g₁ refl p) 
 
-cong-ccut2 Δ₀ r refl = refl
-cong-ccut2 Δ₀ r (~ p) = ~ cong-ccut2 Δ₀ r p
-cong-ccut2 Δ₀ r (p ∙ p₁) = cong-ccut2 Δ₀ r p ∙ cong-ccut2 Δ₀ r p₁
-cong-ccut2 Δ₀ r (uf p) with cases∷ Δ₀ r
-cong-ccut2 {nothing} .[] {f = f} r (uf p) | inj₁ (refl , refl , refl) = cong-scut2 f p
-cong-ccut2 {just x} .[] {f = f} r (uf p) | inj₁ (refl , refl , refl) = uf (cong-scut2 f p)
-... | inj₂ (Γ₀ , refl , refl) = uf (cong-ccut2 Γ₀ refl p)
-cong-ccut2 Δ₀ refl (⊸r p) = ⊸r (cong-ccut2 Δ₀ refl p)
-cong-ccut2 Δ₀ {Δ'} r (⊸l {Γ} {Δ} p p₁) with cases++ Δ₀ Γ Δ' Δ r
-cong-ccut2 Δ₀ {.(Γ₀ ++ Δ)} refl (⊸l {.(Δ₀ ++ _ ∷ Γ₀)} {Δ} p p₁) | inj₁ (Γ₀ , refl , refl) =
-  ⊸l (cong-ccut2 Δ₀ refl p) p₁
-cong-ccut2 .(Γ ++ Γ₀) {Δ'} refl (⊸l {Γ} {.(Γ₀ ++ _ ∷ Δ')} p p₁) | inj₂ (Γ₀ , refl , refl) =
-  ⊸l p (cong-ccut2 Γ₀ refl p₁)
-cong-ccut2 Δ₀ {Δ'} r (⊸c {Γ = Γ} Δ₁ {Δ₂} p p₁) with cases++ Δ₁ Δ₀ (Γ ++ Δ₂) (_ ∷ Δ') (sym r)
-cong-ccut2 .(Δ₁ ++ _ ⊸ _ ∷ Γ₀) {Δ'} r (⊸c {Γ = Γ} Δ₁ {Δ₂} p p₁) | inj₁ (Γ₀ , refl , q) with cases++ Γ₀ Γ Δ' Δ₂ q
-cong-ccut2 .(Δ₁ ++ _ ⊸ _ ∷ Γ₀) {.(Γ₀' ++ Δ₂)} refl (⊸c {Γ = .(Γ₀ ++ _ ∷ Γ₀')} Δ₁ {Δ₂} p p₁) | inj₁ (Γ₀ , refl , refl) | inj₁ (Γ₀' , refl , refl) =
-  ⊸c Δ₁ (cong-ccut2 Γ₀ refl p) p₁
-cong-ccut2 .(Δ₁ ++ _ ⊸ _ ∷ Γ ++ Γ₀') {Δ'} refl (⊸c {Γ = Γ} Δ₁ {.(Γ₀' ++ _ ∷ Δ')} p p₁) | inj₁ (.(Γ ++ Γ₀') , refl , refl) | inj₂ (Γ₀' , refl , refl) =
-  ⊸c Δ₁ p (cong-ccut2 (Δ₁ ++ _ ∷ Γ₀') refl p₁)
-cong-ccut2 _ {.(Γ ++ Δ₂)} {f = f} refl (⊸c {Γ = Γ} Δ₁ {Δ₂} {g = g} {f'} p p₁) | inj₂ ([] , refl , refl) = cong-pr-ccut2 Δ₁ f p f' ∙ cong-pr-ccut3 Δ₁ f g p₁
-cong-ccut2 {S} {Γ = Γ₁} Δ₀ {.(Γ₀ ++ _ ⊸ _ ∷ Γ ++ Δ₂)} refl (⊸c {Γ = Γ} .(Δ₀ ++ x ∷ Γ₀) {Δ₂} p p₁) | inj₂ (x ∷ Γ₀ , refl , refl) =
-  ⊸c (Δ₀ ++ asCxt S Γ₁ ++ Γ₀) p (cong-ccut2 Δ₀ refl p₁)
-cong-ccut2 Δ₀ r ⊸ruf with cases∷ Δ₀ r
-cong-ccut2 {nothing} .[] {f = f} refl (⊸ruf {f = f₁}) | inj₁ (refl , refl , refl) = ~ scut⊸r f f₁
-cong-ccut2 {just x} .[] {f = f} refl (⊸ruf {f = f₁}) | inj₁ (refl , refl , refl) = ⊸ruf ∙ uf (~ scut⊸r f f₁) 
-cong-ccut2 .(_ ∷ Γ₀) refl ⊸ruf | inj₂ (Γ₀ , refl , refl) = ⊸ruf
-cong-ccut2 Δ₀ {Δ'} r (⊸r⊸l {Γ} {Δ}) with cases++ Δ₀ Γ Δ' Δ r
-cong-ccut2 Δ₀ {.(Γ₀ ++ Δ)} {A} refl (⊸r⊸l {.(Δ₀ ++ A ∷ Γ₀)} {Δ} {C = C}) | inj₁ (Γ₀ , refl , refl)
-  rewrite cases++-inj₁ Δ₀ Γ₀ (Δ ++ C ∷ []) A = ⊸r⊸l
-cong-ccut2 {S}{Γ = Γ₁} .(Γ ++ Γ₀) {Δ'} {A} refl (⊸r⊸l {Γ} {.(Γ₀ ++ A ∷ Δ')} {C = C}) | inj₂ (Γ₀ , refl , refl) 
-  rewrite cases++-inj₂ Γ₀ Γ (Δ' ++ C ∷ []) A = ⊸r⊸l {Γ}{Γ₀ ++ asCxt S Γ₁ ++ Δ'}
-cong-ccut2 Δ₀ {Δ'} {A} r (⊸r⊸c {Γ = Γ} {Δ₁} {Δ₂}) with cases++ Δ₁ Δ₀ (Γ ++ Δ₂) (A ∷ Δ') (sym r)
-cong-ccut2 .(Δ₁ ++ _ ⊸ _ ∷ Γ₀) {Δ'} {A} r (⊸r⊸c {Γ = Γ} {Δ₁} {Δ₂}) | inj₁ (Γ₀ , refl , q) with cases++ Γ₀ Γ Δ' Δ₂ q
-cong-ccut2 .(Δ₁ ++ A₁ ⊸ B ∷ Γ₀) {.(Γ₀' ++ Δ₂)} {A} refl (⊸r⊸c {Γ = .(Γ₀ ++ A ∷ Γ₀')} {Δ₁} {Δ₂} {A₁} {B} {C}) | inj₁ (Γ₀ , refl , refl) | inj₁ (Γ₀' , refl , refl)
-  rewrite cases++-inj₁ Δ₁ Γ₀ (A ∷ Γ₀' ++ Δ₂ ++ C ∷ []) (A₁ ⊸ B) | cases++-inj₁ Γ₀ Γ₀' (Δ₂ ++ C ∷ []) A = ⊸r⊸c
-cong-ccut2 {S}{Γ = Γ₁} .(Δ₁ ++ A₁ ⊸ B ∷ Γ ++ Γ₀') {Δ'} {A} refl (⊸r⊸c {Γ = Γ} {Δ₁} {.(Γ₀' ++ A ∷ Δ')} {A₁} {B} {C}) | inj₁ (.(Γ ++ Γ₀') , refl , refl) | inj₂ (Γ₀' , refl , refl) 
-  rewrite cases++-inj₁ Δ₁ (Γ ++ Γ₀') (A ∷ Δ' ++ C ∷ []) (A₁ ⊸ B) | cases++-inj₂ Γ₀' Γ (Δ' ++ C ∷ []) A = ⊸r⊸c {_}{_}{Δ₁}{Γ₀' ++ asCxt S Γ₁ ++ Δ'}
-cong-ccut2 Δ₀ {.(Γ ++ Δ₂)} {.(A ⊸ B)} {f = f} refl (⊸r⊸c {Γ = Γ} {.Δ₀} {Δ₂} {A} {B} {C} {f = f₁} {g}) | inj₂ ([] , refl , refl) 
-  rewrite cases++-inj₂ [] Δ₀ (Γ ++ Δ₂ ++ C ∷ []) (A ⊸ B) = ~ (pr-ccut⊸r Δ₀ f f₁ g)
-cong-ccut2 {S} {Γ = Γ₁} Δ₀ {.(Γ₀ ++ A ⊸ B ∷ Γ ++ Δ₂)} {.x} refl (⊸r⊸c {Γ = Γ} {.(Δ₀ ++ x ∷ Γ₀)} {Δ₂} {A} {B} {C}) | inj₂ (x ∷ Γ₀ , refl , refl) 
-  rewrite cases++-inj₂ (x ∷ Γ₀) Δ₀ (Γ ++ Δ₂ ++ C ∷ []) (A ⊸ B) = ⊸r⊸c {_}{_}{Δ₀ ++ asCxt S Γ₁ ++ Γ₀} 
-cong-ccut2 Δ₀ r ⊸cuf with cases∷ Δ₀ r
-cong-ccut2 {nothing} {Γ = Γ} .[] {f = f} refl (⊸cuf {Δ₀ = Δ₀} {f = f₁} {g}) | inj₁ (refl , refl , refl) = ~ scut⊸c Δ₀ f f₁ g 
-cong-ccut2 {just x} {Γ = Γ} .[] {f = f} refl (⊸cuf {Δ₀ = Δ₀} {f = f₁} {g}) | inj₁ (refl , refl , refl) = ⊸cuf {_}{Γ ++ Δ₀} ∙ uf (~ scut⊸c Δ₀ f f₁ g) 
-cong-ccut2 .(_ ∷ Γ₀) r ⊸cuf | inj₂ (Γ₀ , p , refl) with inj∷ (sym r)
-cong-ccut2 .(_ ∷ Γ₀) {Δ'} {A} r (⊸cuf {Γ} {Δ₀ = Δ₀} {Δ₁ = Δ₁}) | inj₂ (Γ₀ , p , refl) | refl , q with cases++ Δ₀ Γ₀ (Γ ++ Δ₁) (A ∷ Δ') q
-cong-ccut2 .(_ ∷ Δ₀ ++ _ ⊸ _ ∷ Γ₀') {Δ'} {A} r (⊸cuf {Γ} {Δ₀} {Δ₁}) | inj₂ (.(Δ₀ ++ _ ⊸ _ ∷ Γ₀') , p , refl) | refl , q | inj₁ (Γ₀' , refl , q') with cases++ Γ₀' Γ Δ' Δ₁ q'
-cong-ccut2 .(_ ∷ Δ₀ ++ A₁ ⊸ B ∷ Γ₀') {.(Γ₀'' ++ Δ₁)} {A} refl (⊸cuf {.(Γ₀' ++ A ∷ Γ₀'')} {Δ₀} {Δ₁} {A₁} {B = B}) | inj₂ (.(Δ₀ ++ A₁ ⊸ B ∷ Γ₀') , refl , refl) | refl , refl | inj₁ (Γ₀' , refl , refl) | inj₁ (Γ₀'' , refl , refl)
-  rewrite cases++-inj₁ Δ₀ Γ₀' (A ∷ Γ₀'' ++ Δ₁) (A₁ ⊸ B) | cases++-inj₁ Γ₀' Γ₀'' Δ₁ A
-    = ⊸cuf
-cong-ccut2 .(_ ∷ Δ₀ ++ A ⊸ B ∷ Γ ++ Γ₀'') {Δ'} {` x} refl (⊸cuf {Γ} {Δ₀} {.(Γ₀'' ++ ` x ∷ Δ')} {A} {B = B}) | inj₂ (.(Δ₀ ++ A ⊸ B ∷ Γ ++ Γ₀'') , refl , refl) | refl , refl | inj₁ (.(Γ ++ Γ₀'') , refl , refl) | inj₂ (Γ₀'' , refl , refl) rewrite cases++-inj₁ Δ₀ (Γ ++ Γ₀'') (` x ∷ Δ') (A ⊸ B) | cases++-inj₂ Γ₀'' Γ Δ' (` x) = ⊸cuf
-cong-ccut2 .(_ ∷ Δ₀ ++ A₂ ⊸ B ∷ Γ ++ Γ₀'') {Δ'} {A ⊸ A₁} refl (⊸cuf {Γ} {Δ₀} {.(Γ₀'' ++ A ⊸ A₁ ∷ Δ')} {A₂} {B = B}) | inj₂ (.(Δ₀ ++ A₂ ⊸ B ∷ Γ ++ Γ₀'') , refl , refl) | refl , refl | inj₁ (.(Γ ++ Γ₀'') , refl , refl) | inj₂ (Γ₀'' , refl , refl) rewrite cases++-inj₁ Δ₀ (Γ ++ Γ₀'') (A ⊸ A₁ ∷ Δ') (A₂ ⊸ B) | cases++-inj₂ Γ₀'' Γ Δ' (A ⊸ A₁) = ⊸cuf
-cong-ccut2 .(_ ∷ Γ₀) {.(Γ ++ Δ₁)} {.(A ⊸ B)} {f = f} refl (⊸cuf {Γ} {.Γ₀} {Δ₁} {A} {B = B} {f = f₁} {g}) | inj₂ (Γ₀ , refl , refl) | refl , refl | inj₂ ([] , refl , refl)  
-  rewrite cases++-inj₂ [] Γ₀ (Γ ++ Δ₁) (A ⊸ B) = pr-ccutuf Γ₀ f f₁ g
-cong-ccut2 {S} {Γ = Γ₁} .(_ ∷ Γ₀) {.(Γ₀' ++ A ⊸ B ∷ Γ ++ Δ₁)} {.x} refl (⊸cuf {Γ} {.(Γ₀ ++ x ∷ Γ₀')} {Δ₁} {A} {B = B}) | inj₂ (Γ₀ , refl , refl) | refl , refl | inj₂ (x ∷ Γ₀' , refl , refl) 
-  rewrite cases++-inj₂ (x ∷ Γ₀') Γ₀ (Γ ++ Δ₁) (A ⊸ B) = ⊸cuf {Δ₀ = Γ₀ ++ asCxt S Γ₁ ++ Γ₀'}
-cong-ccut2 Δ₀ {Δ'} {A} r (⊸cuf2 {Γ} {Δ}) with cases++ [] Δ₀ (Γ ++ Δ) (A ∷ Δ') (sym r)
-cong-ccut2 .(_ ⊸ _ ∷ Γ₀) {Δ'} {A} r (⊸cuf2 {Γ} {Δ}) | inj₁ (Γ₀ , refl , q) with cases++ Γ₀ Γ Δ' Δ q
-cong-ccut2 .(_ ⊸ _ ∷ Γ₀) {.(Γ₀' ++ Δ)} {A} refl (⊸cuf2 {.(Γ₀ ++ A ∷ Γ₀')} {Δ}) | inj₁ (Γ₀ , refl , refl) | inj₁ (Γ₀' , refl , refl)
-  rewrite cases++-inj₁ Γ₀ Γ₀' Δ A = ⊸cuf2
-cong-ccut2 .(_ ⊸ _ ∷ Γ ++ Γ₀') {Δ'} {A} refl (⊸cuf2 {Γ} {.(Γ₀' ++ A ∷ Δ')}) | inj₁ (.(Γ ++ Γ₀') , refl , refl) | inj₂ (Γ₀' , refl , refl)
-  rewrite cases++-inj₂ Γ₀' Γ Δ' A = ⊸cuf2
-cong-ccut2 {nothing} [] {.(Γ ++ Δ)} {.(_ ⊸ _)} {f = f} refl (⊸cuf2 {Γ} {Δ} {f = f₁} {g}) | inj₂ (.[] , refl , refl) = pr-ccutuf2-n f f₁ g
-cong-ccut2 {just x} [] {.(Γ ++ Δ)} {.(_ ⊸ _)} {f = f} refl (⊸cuf2 {Γ} {Δ} {f = f₁} {g}) | inj₂ (.[] , refl , refl) = pr-ccutuf2-j f f₁ g
-cong-ccut2 Δ₀ r ⊸c⊸l = {!!}
-cong-ccut2 Δ₀ r ⊸c⊸l2 = {!!}
-cong-ccut2 Δ₀ r ⊸c⊸c = {!!}
+-- cong-ccut2 Δ₀ r refl = refl
+-- cong-ccut2 Δ₀ r (~ p) = ~ cong-ccut2 Δ₀ r p
+-- cong-ccut2 Δ₀ r (p ∙ p₁) = cong-ccut2 Δ₀ r p ∙ cong-ccut2 Δ₀ r p₁
+-- cong-ccut2 Δ₀ r (uf p) with cases∷ Δ₀ r
+-- cong-ccut2 {nothing} .[] {f = f} r (uf p) | inj₁ (refl , refl , refl) = cong-scut2 f p
+-- cong-ccut2 {just x} .[] {f = f} r (uf p) | inj₁ (refl , refl , refl) = uf (cong-scut2 f p)
+-- ... | inj₂ (Γ₀ , refl , refl) = uf (cong-ccut2 Γ₀ refl p)
+-- cong-ccut2 Δ₀ refl (⊸r p) = ⊸r (cong-ccut2 Δ₀ refl p)
+-- cong-ccut2 Δ₀ {Δ'} r (⊸l {Γ} {Δ} p p₁) with cases++ Δ₀ Γ Δ' Δ r
+-- cong-ccut2 Δ₀ {.(Γ₀ ++ Δ)} refl (⊸l {.(Δ₀ ++ _ ∷ Γ₀)} {Δ} p p₁) | inj₁ (Γ₀ , refl , refl) =
+--   ⊸l (cong-ccut2 Δ₀ refl p) p₁
+-- cong-ccut2 .(Γ ++ Γ₀) {Δ'} refl (⊸l {Γ} {.(Γ₀ ++ _ ∷ Δ')} p p₁) | inj₂ (Γ₀ , refl , refl) =
+--   ⊸l p (cong-ccut2 Γ₀ refl p₁)
+-- cong-ccut2 Δ₀ {Δ'} r (⊸c {Γ = Γ} Δ₁ {Δ₂} p p₁) with cases++ Δ₁ Δ₀ (Γ ++ Δ₂) (_ ∷ Δ') (sym r)
+-- cong-ccut2 .(Δ₁ ++ _ ⊸ _ ∷ Γ₀) {Δ'} r (⊸c {Γ = Γ} Δ₁ {Δ₂} p p₁) | inj₁ (Γ₀ , refl , q) with cases++ Γ₀ Γ Δ' Δ₂ q
+-- cong-ccut2 .(Δ₁ ++ _ ⊸ _ ∷ Γ₀) {.(Γ₀' ++ Δ₂)} refl (⊸c {Γ = .(Γ₀ ++ _ ∷ Γ₀')} Δ₁ {Δ₂} p p₁) | inj₁ (Γ₀ , refl , refl) | inj₁ (Γ₀' , refl , refl) =
+--   ⊸c Δ₁ (cong-ccut2 Γ₀ refl p) p₁
+-- cong-ccut2 .(Δ₁ ++ _ ⊸ _ ∷ Γ ++ Γ₀') {Δ'} refl (⊸c {Γ = Γ} Δ₁ {.(Γ₀' ++ _ ∷ Δ')} p p₁) | inj₁ (.(Γ ++ Γ₀') , refl , refl) | inj₂ (Γ₀' , refl , refl) =
+--   ⊸c Δ₁ p (cong-ccut2 (Δ₁ ++ _ ∷ Γ₀') refl p₁)
+-- cong-ccut2 _ {.(Γ ++ Δ₂)} {f = f} refl (⊸c {Γ = Γ} Δ₁ {Δ₂} {g = g} {f'} p p₁) | inj₂ ([] , refl , refl) = cong-pr-ccut2 Δ₁ f p f' ∙ cong-pr-ccut3 Δ₁ f g p₁
+-- cong-ccut2 {S} {Γ = Γ₁} Δ₀ {.(Γ₀ ++ _ ⊸ _ ∷ Γ ++ Δ₂)} refl (⊸c {Γ = Γ} .(Δ₀ ++ x ∷ Γ₀) {Δ₂} p p₁) | inj₂ (x ∷ Γ₀ , refl , refl) =
+--   ⊸c (Δ₀ ++ asCxt S Γ₁ ++ Γ₀) p (cong-ccut2 Δ₀ refl p₁)
+-- cong-ccut2 Δ₀ r ⊸ruf with cases∷ Δ₀ r
+-- cong-ccut2 {nothing} .[] {f = f} refl (⊸ruf {f = f₁}) | inj₁ (refl , refl , refl) = ~ scut⊸r f f₁
+-- cong-ccut2 {just x} .[] {f = f} refl (⊸ruf {f = f₁}) | inj₁ (refl , refl , refl) = ⊸ruf ∙ uf (~ scut⊸r f f₁) 
+-- cong-ccut2 .(_ ∷ Γ₀) refl ⊸ruf | inj₂ (Γ₀ , refl , refl) = ⊸ruf
+-- cong-ccut2 Δ₀ {Δ'} r (⊸r⊸l {Γ} {Δ}) with cases++ Δ₀ Γ Δ' Δ r
+-- cong-ccut2 Δ₀ {.(Γ₀ ++ Δ)} {A} refl (⊸r⊸l {.(Δ₀ ++ A ∷ Γ₀)} {Δ} {C = C}) | inj₁ (Γ₀ , refl , refl)
+--   rewrite cases++-inj₁ Δ₀ Γ₀ (Δ ++ C ∷ []) A = ⊸r⊸l
+-- cong-ccut2 {S}{Γ = Γ₁} .(Γ ++ Γ₀) {Δ'} {A} refl (⊸r⊸l {Γ} {.(Γ₀ ++ A ∷ Δ')} {C = C}) | inj₂ (Γ₀ , refl , refl) 
+--   rewrite cases++-inj₂ Γ₀ Γ (Δ' ++ C ∷ []) A = ⊸r⊸l {Γ}{Γ₀ ++ asCxt S Γ₁ ++ Δ'}
+-- cong-ccut2 Δ₀ {Δ'} {A} r (⊸r⊸c {Γ = Γ} {Δ₁} {Δ₂}) with cases++ Δ₁ Δ₀ (Γ ++ Δ₂) (A ∷ Δ') (sym r)
+-- cong-ccut2 .(Δ₁ ++ _ ⊸ _ ∷ Γ₀) {Δ'} {A} r (⊸r⊸c {Γ = Γ} {Δ₁} {Δ₂}) | inj₁ (Γ₀ , refl , q) with cases++ Γ₀ Γ Δ' Δ₂ q
+-- cong-ccut2 .(Δ₁ ++ A₁ ⊸ B ∷ Γ₀) {.(Γ₀' ++ Δ₂)} {A} refl (⊸r⊸c {Γ = .(Γ₀ ++ A ∷ Γ₀')} {Δ₁} {Δ₂} {A₁} {B} {C}) | inj₁ (Γ₀ , refl , refl) | inj₁ (Γ₀' , refl , refl)
+--   rewrite cases++-inj₁ Δ₁ Γ₀ (A ∷ Γ₀' ++ Δ₂ ++ C ∷ []) (A₁ ⊸ B) | cases++-inj₁ Γ₀ Γ₀' (Δ₂ ++ C ∷ []) A = ⊸r⊸c
+-- cong-ccut2 {S}{Γ = Γ₁} .(Δ₁ ++ A₁ ⊸ B ∷ Γ ++ Γ₀') {Δ'} {A} refl (⊸r⊸c {Γ = Γ} {Δ₁} {.(Γ₀' ++ A ∷ Δ')} {A₁} {B} {C}) | inj₁ (.(Γ ++ Γ₀') , refl , refl) | inj₂ (Γ₀' , refl , refl) 
+--   rewrite cases++-inj₁ Δ₁ (Γ ++ Γ₀') (A ∷ Δ' ++ C ∷ []) (A₁ ⊸ B) | cases++-inj₂ Γ₀' Γ (Δ' ++ C ∷ []) A = ⊸r⊸c {_}{_}{Δ₁}{Γ₀' ++ asCxt S Γ₁ ++ Δ'}
+-- cong-ccut2 Δ₀ {.(Γ ++ Δ₂)} {.(A ⊸ B)} {f = f} refl (⊸r⊸c {Γ = Γ} {.Δ₀} {Δ₂} {A} {B} {C} {f = f₁} {g}) | inj₂ ([] , refl , refl) 
+--   rewrite cases++-inj₂ [] Δ₀ (Γ ++ Δ₂ ++ C ∷ []) (A ⊸ B) = ~ (pr-ccut⊸r Δ₀ f f₁ g)
+-- cong-ccut2 {S} {Γ = Γ₁} Δ₀ {.(Γ₀ ++ A ⊸ B ∷ Γ ++ Δ₂)} {.x} refl (⊸r⊸c {Γ = Γ} {.(Δ₀ ++ x ∷ Γ₀)} {Δ₂} {A} {B} {C}) | inj₂ (x ∷ Γ₀ , refl , refl) 
+--   rewrite cases++-inj₂ (x ∷ Γ₀) Δ₀ (Γ ++ Δ₂ ++ C ∷ []) (A ⊸ B) = ⊸r⊸c {_}{_}{Δ₀ ++ asCxt S Γ₁ ++ Γ₀} 
+-- cong-ccut2 Δ₀ r ⊸cuf with cases∷ Δ₀ r
+-- cong-ccut2 {nothing} {Γ = Γ} .[] {f = f} refl (⊸cuf {Δ₀ = Δ₀} {f = f₁} {g}) | inj₁ (refl , refl , refl) = ~ scut⊸c Δ₀ f f₁ g 
+-- cong-ccut2 {just x} {Γ = Γ} .[] {f = f} refl (⊸cuf {Δ₀ = Δ₀} {f = f₁} {g}) | inj₁ (refl , refl , refl) = ⊸cuf {_}{Γ ++ Δ₀} ∙ uf (~ scut⊸c Δ₀ f f₁ g) 
+-- cong-ccut2 .(_ ∷ Γ₀) r ⊸cuf | inj₂ (Γ₀ , p , refl) with inj∷ (sym r)
+-- cong-ccut2 .(_ ∷ Γ₀) {Δ'} {A} r (⊸cuf {Γ} {Δ₀ = Δ₀} {Δ₁ = Δ₁}) | inj₂ (Γ₀ , p , refl) | refl , q with cases++ Δ₀ Γ₀ (Γ ++ Δ₁) (A ∷ Δ') q
+-- cong-ccut2 .(_ ∷ Δ₀ ++ _ ⊸ _ ∷ Γ₀') {Δ'} {A} r (⊸cuf {Γ} {Δ₀} {Δ₁}) | inj₂ (.(Δ₀ ++ _ ⊸ _ ∷ Γ₀') , p , refl) | refl , q | inj₁ (Γ₀' , refl , q') with cases++ Γ₀' Γ Δ' Δ₁ q'
+-- cong-ccut2 .(_ ∷ Δ₀ ++ A₁ ⊸ B ∷ Γ₀') {.(Γ₀'' ++ Δ₁)} {A} refl (⊸cuf {.(Γ₀' ++ A ∷ Γ₀'')} {Δ₀} {Δ₁} {A₁} {B = B}) | inj₂ (.(Δ₀ ++ A₁ ⊸ B ∷ Γ₀') , refl , refl) | refl , refl | inj₁ (Γ₀' , refl , refl) | inj₁ (Γ₀'' , refl , refl)
+--   rewrite cases++-inj₁ Δ₀ Γ₀' (A ∷ Γ₀'' ++ Δ₁) (A₁ ⊸ B) | cases++-inj₁ Γ₀' Γ₀'' Δ₁ A
+--     = ⊸cuf
+-- cong-ccut2 .(_ ∷ Δ₀ ++ A ⊸ B ∷ Γ ++ Γ₀'') {Δ'} {` x} refl (⊸cuf {Γ} {Δ₀} {.(Γ₀'' ++ ` x ∷ Δ')} {A} {B = B}) | inj₂ (.(Δ₀ ++ A ⊸ B ∷ Γ ++ Γ₀'') , refl , refl) | refl , refl | inj₁ (.(Γ ++ Γ₀'') , refl , refl) | inj₂ (Γ₀'' , refl , refl) rewrite cases++-inj₁ Δ₀ (Γ ++ Γ₀'') (` x ∷ Δ') (A ⊸ B) | cases++-inj₂ Γ₀'' Γ Δ' (` x) = ⊸cuf
+-- cong-ccut2 .(_ ∷ Δ₀ ++ A₂ ⊸ B ∷ Γ ++ Γ₀'') {Δ'} {A ⊸ A₁} refl (⊸cuf {Γ} {Δ₀} {.(Γ₀'' ++ A ⊸ A₁ ∷ Δ')} {A₂} {B = B}) | inj₂ (.(Δ₀ ++ A₂ ⊸ B ∷ Γ ++ Γ₀'') , refl , refl) | refl , refl | inj₁ (.(Γ ++ Γ₀'') , refl , refl) | inj₂ (Γ₀'' , refl , refl) rewrite cases++-inj₁ Δ₀ (Γ ++ Γ₀'') (A ⊸ A₁ ∷ Δ') (A₂ ⊸ B) | cases++-inj₂ Γ₀'' Γ Δ' (A ⊸ A₁) = ⊸cuf
+-- cong-ccut2 .(_ ∷ Γ₀) {.(Γ ++ Δ₁)} {.(A ⊸ B)} {f = f} refl (⊸cuf {Γ} {.Γ₀} {Δ₁} {A} {B = B} {f = f₁} {g}) | inj₂ (Γ₀ , refl , refl) | refl , refl | inj₂ ([] , refl , refl)  
+--   rewrite cases++-inj₂ [] Γ₀ (Γ ++ Δ₁) (A ⊸ B) = pr-ccutuf Γ₀ f f₁ g
+-- cong-ccut2 {S} {Γ = Γ₁} .(_ ∷ Γ₀) {.(Γ₀' ++ A ⊸ B ∷ Γ ++ Δ₁)} {.x} refl (⊸cuf {Γ} {.(Γ₀ ++ x ∷ Γ₀')} {Δ₁} {A} {B = B}) | inj₂ (Γ₀ , refl , refl) | refl , refl | inj₂ (x ∷ Γ₀' , refl , refl) 
+--   rewrite cases++-inj₂ (x ∷ Γ₀') Γ₀ (Γ ++ Δ₁) (A ⊸ B) = ⊸cuf {Δ₀ = Γ₀ ++ asCxt S Γ₁ ++ Γ₀'}
+-- cong-ccut2 Δ₀ {Δ'} {A} r (⊸cuf2 {Γ} {Δ}) with cases++ [] Δ₀ (Γ ++ Δ) (A ∷ Δ') (sym r)
+-- cong-ccut2 .(_ ⊸ _ ∷ Γ₀) {Δ'} {A} r (⊸cuf2 {Γ} {Δ}) | inj₁ (Γ₀ , refl , q) with cases++ Γ₀ Γ Δ' Δ q
+-- cong-ccut2 .(_ ⊸ _ ∷ Γ₀) {.(Γ₀' ++ Δ)} {A} refl (⊸cuf2 {.(Γ₀ ++ A ∷ Γ₀')} {Δ}) | inj₁ (Γ₀ , refl , refl) | inj₁ (Γ₀' , refl , refl)
+--   rewrite cases++-inj₁ Γ₀ Γ₀' Δ A = ⊸cuf2
+-- cong-ccut2 .(_ ⊸ _ ∷ Γ ++ Γ₀') {Δ'} {A} refl (⊸cuf2 {Γ} {.(Γ₀' ++ A ∷ Δ')}) | inj₁ (.(Γ ++ Γ₀') , refl , refl) | inj₂ (Γ₀' , refl , refl)
+--   rewrite cases++-inj₂ Γ₀' Γ Δ' A = ⊸cuf2 
+-- cong-ccut2 {nothing} [] {.(Γ ++ Δ)} {.(_ ⊸ _)} {f = f} refl (⊸cuf2 {Γ} {Δ} {f = f₁} {g}) | inj₂ (.[] , refl , refl) = pr-ccutuf2-n f f₁ g
+-- cong-ccut2 {just x} [] {.(Γ ++ Δ)} {.(_ ⊸ _)} {f = f} refl (⊸cuf2 {Γ} {Δ} {f = f₁} {g}) | inj₂ (.[] , refl , refl) = pr-ccutuf2-j f f₁ g
+-- cong-ccut2 Δ₀ {Δ'} {A} r (⊸c⊸l {Γ} {Δ} {Γ'} {Λ} {A' = A'} {B'}) with cases++ (Γ ++ Δ) Δ₀ (Γ' ++ Λ) (A ∷ Δ') (sym r)
+-- cong-ccut2 .(Γ ++ Δ ++ A' ⊸ B' ∷ Γ₀) {Δ'} {A} r (⊸c⊸l {Γ} {Δ} {Γ'} {Λ} {A' = A'} {B'}) | inj₁ (Γ₀ , refl , q) with cases++ Γ₀ Γ' Δ' Λ q
+-- cong-ccut2 .(Γ ++ Δ ++ A' ⊸ B' ∷ Γ₀) {.(Γ₀' ++ Λ)} {A} refl (⊸c⊸l {Γ} {Δ} {.(Γ₀ ++ A ∷ Γ₀')} {Λ} {A' = A'} {B'}) | inj₁ (Γ₀ , refl , refl) | inj₁ (Γ₀' , refl , refl)
+--   rewrite cases++-inj₂ (Δ ++ A' ⊸ B' ∷ Γ₀) Γ (Γ₀' ++ Λ) A | cases++-inj₁ Δ Γ₀ (A ∷ Γ₀' ++ Λ) (A' ⊸ B') | cases++-inj₁ Γ₀ Γ₀' Λ A = ⊸c⊸l
+-- cong-ccut2 .(Γ ++ Δ ++ A' ⊸ B' ∷ Γ' ++ Γ₀') {Δ'} {A} refl (⊸c⊸l {Γ} {Δ} {Γ'} {.(Γ₀' ++ A ∷ Δ')} {A' = A'} {B'}) | inj₁ (.(Γ' ++ Γ₀') , refl , refl) | inj₂ (Γ₀' , refl , refl)
+--   rewrite cases++-inj₂ (Δ ++ B' ∷ Γ₀') Γ Δ' A | cases++-inj₂ (Δ ++ A' ⊸ B' ∷ Γ' ++ Γ₀') Γ Δ' A | cases++-inj₁ Δ (Γ' ++ Γ₀') (A ∷ Δ') (A' ⊸ B') | cases++-inj₂ Γ₀' Γ' Δ' A = ⊸c⊸l
+-- cong-ccut2 .(Γ ++ Δ) {.(Γ' ++ Λ)} {.(A' ⊸ B')} refl (⊸c⊸l {Γ} {Δ} {Γ'} {Λ} {A' = A'} {B'}) | inj₂ ([] , refl , refl)
+--   rewrite cases++-inj₂ Δ Γ (Γ' ++ Λ) (A' ⊸ B') | cases++-inj₂ [] Δ (Γ' ++ Λ) (A' ⊸ B') = {!!}
+-- cong-ccut2 Δ₀ {.(Γ₀ ++ A' ⊸ B' ∷ Γ' ++ Λ)} r (⊸c⊸l {Γ} {Δ} {Γ'} {Λ} {A' = A'} {B'}) | inj₂ (D ∷ Γ₀ , refl , q) with cases++ Δ₀ Γ Γ₀ Δ q
+-- cong-ccut2 Δ₀ {.((Γ₀' ++ Δ) ++ A' ⊸ B' ∷ Γ' ++ Λ)} {.D} refl (⊸c⊸l {.(Δ₀ ++ D ∷ Γ₀')} {Δ} {Γ'} {Λ} {A' = A'} {B'}) | inj₂ (D ∷ .(Γ₀' ++ Δ) , refl , refl) | inj₁ (Γ₀' , refl , refl)
+--   rewrite cases++-inj₁ Δ₀ Γ₀' (Δ ++ B' ∷ Λ) D | cases++-inj₁ Δ₀ Γ₀' (Δ ++ A' ⊸ B' ∷ Γ' ++ Λ) D = ⊸c⊸l
+-- cong-ccut2 {S} {Γ = Γ₁} .(Γ ++ Γ₀') {.(Γ₀ ++ A' ⊸ B' ∷ Γ' ++ Λ)} {.D} refl (⊸c⊸l {Γ} {.(Γ₀' ++ D ∷ Γ₀)} {Γ'} {Λ} {A' = A'} {B'}) | inj₂ (D ∷ Γ₀ , refl , refl) | inj₂ (Γ₀' , refl , refl) 
+--   rewrite cases++-inj₂ Γ₀' Γ (Γ₀ ++ B' ∷ Λ) D | cases++-inj₂ Γ₀' Γ (Γ₀ ++ A' ⊸ B' ∷ Γ' ++ Λ) D | cases++-inj₂ (D ∷ Γ₀) Γ₀' (Γ' ++ Λ) (A' ⊸ B') = ⊸c⊸l {Δ = Γ₀' ++ asCxt S Γ₁ ++ Γ₀}
+-- cong-ccut2 Δ₀ {Δ'} {A} r (⊸c⊸l2 {Γ} {Δ} {Γ'} {Λ}) with cases++ Δ Δ₀ (Γ' ++ Λ ++ Γ) (A ∷ Δ') (sym r)
+-- cong-ccut2 .(Δ ++ _ ⊸ _ ∷ Γ₀) {Δ'} {A} r (⊸c⊸l2 {Γ} {Δ} {Γ'} {Λ}) | inj₁ (Γ₀ , refl , q) with cases++ Γ₀ Γ' Δ' (Λ ++ Γ) q
+-- cong-ccut2 .(Δ ++ A' ⊸ B' ∷ Γ₀) {.(Γ₀' ++ Λ ++ Γ)} {A} refl (⊸c⊸l2 {Γ} {Δ} {.(Γ₀ ++ A ∷ Γ₀')} {Λ} {A' = A'} {B'}) | inj₁ (Γ₀ , refl , refl) | inj₁ (Γ₀' , refl , refl)
+--   rewrite cases++-inj₁ (Δ ++ A' ⊸ B' ∷ Γ₀) (Γ₀' ++ Λ) Γ A | cases++-inj₁ Δ Γ₀ (A ∷ Γ₀' ++ Λ) (A' ⊸ B') | cases++-inj₁ Γ₀ Γ₀' Λ A = ⊸c⊸l2
+-- cong-ccut2 .(Δ ++ _ ⊸ _ ∷ Γ' ++ Γ₀') {Δ'} {A} r (⊸c⊸l2 {Γ} {Δ} {Γ'} {Λ}) | inj₁ (.(Γ' ++ Γ₀') , refl , q) | inj₂ (Γ₀' , p , refl) with cases++ Γ₀' Λ Δ' Γ p
+-- cong-ccut2 .(Δ ++ A' ⊸ B' ∷ Γ' ++ Γ₀') {.(Γ₀ ++ Γ)} {A} refl (⊸c⊸l2 {Γ} {Δ} {Γ'} {.(Γ₀' ++ A ∷ Γ₀)} {A' = A'} {B'}) | inj₁ (.(Γ' ++ Γ₀') , refl , refl) | inj₂ (Γ₀' , refl , refl) | inj₁ (Γ₀ , refl , refl) 
+--   rewrite cases++-inj₁ (Δ ++ B' ∷ Γ₀') Γ₀ Γ A | cases++-inj₁ (Δ ++ A' ⊸ B' ∷ Γ' ++ Γ₀') Γ₀ Γ A | cases++-inj₁ Δ (Γ' ++ Γ₀') (A ∷ Γ₀) (A' ⊸ B') | cases++-inj₂ Γ₀' Γ' Γ₀ A = ⊸c⊸l2
+-- cong-ccut2 .(Δ ++ A' ⊸ B' ∷ Γ' ++ Λ ++ Γ₀) {Δ'} {A} refl (⊸c⊸l2 {.(Γ₀ ++ A ∷ Δ')} {Δ} {Γ'} {Λ} {A' = A'} {B'}) | inj₁ (.(Γ' ++ Λ ++ Γ₀) , refl , refl) | inj₂ (.(Λ ++ Γ₀) , refl , refl) | inj₂ (Γ₀ , refl , refl)
+--   rewrite cases++-inj₂ Γ₀ (Δ ++ B' ∷ Λ) Δ' A | cases++-inj₂ Γ₀ (Δ ++ A' ⊸ B' ∷ Γ' ++ Λ) Δ' A = ⊸c⊸l2
+-- cong-ccut2 Δ₀ {.(Γ' ++ Λ ++ Γ)} {.(A' ⊸ B')} refl (⊸c⊸l2 {Γ} {.Δ₀} {Γ'} {Λ} {A' = A'} {B'}) | inj₂ ([] , refl , refl)
+--   rewrite cases++-inj₁ Δ₀ (Γ' ++ Λ) Γ (A' ⊸ B') | cases++-inj₂ [] Δ₀ (Γ' ++ Λ) (A' ⊸ B') = {!!}
+-- cong-ccut2 {S} {Γ = Γ₁} Δ₀ {.(Γ₀ ++ A' ⊸ B' ∷ Γ' ++ Λ ++ Γ)} {.x} refl (⊸c⊸l2 {Γ} {.(Δ₀ ++ x ∷ Γ₀)} {Γ'} {Λ} {A' = A'} {B'}) | inj₂ (x ∷ Γ₀ , refl , refl)
+--   rewrite cases++-inj₁ Δ₀ (Γ₀ ++ B' ∷ Λ) Γ x | cases++-inj₁ Δ₀ (Γ₀ ++ A' ⊸ B' ∷ Γ' ++ Λ) Γ x | cases++-inj₂ (x ∷ Γ₀) Δ₀ (Γ' ++ Λ) (A' ⊸ B') = ⊸c⊸l2 {_}{(Δ₀ ++ asCxt S Γ₁ ++ Γ₀)}
+cong-ccut2 Δ₀ {Δ'} {A} r (⊸c⊸c {Γ = Γ} {Γ'} {Δ₁} {Δ₂} {Δ₃} {A₁} {B}) with cases++ (Δ₁ ++ A₁ ⊸ B ∷ Γ ++ Δ₂) Δ₀ (Γ' ++ Δ₃) (A ∷ Δ') (sym r)
+cong-ccut2 .(Δ₁ ++ A₁ ⊸ B ∷ Γ ++ Δ₂ ++ _ ⊸ _ ∷ Γ₀) {Δ'} {A} r (⊸c⊸c {Γ = Γ} {Γ'} {Δ₁} {Δ₂} {Δ₃} {A₁} {B}) | inj₁ (Γ₀ , refl , q) with cases++ Γ₀ Γ' Δ' Δ₃ q
+cong-ccut2 .(Δ₁ ++ A₁ ⊸ B ∷ Γ ++ Δ₂ ++ A' ⊸ B' ∷ Γ₀) {.(Γ₀' ++ Δ₃)} {A} refl (⊸c⊸c {Γ = Γ} {.(Γ₀ ++ A ∷ Γ₀')} {Δ₁} {Δ₂} {Δ₃} {A₁} {B} {A'} {B'}) | inj₁ (Γ₀ , refl , refl) | inj₁ (Γ₀' , refl , refl)
+  rewrite cases++-inj₁ Δ₁ (Γ ++ Δ₂ ++ A' ⊸ B' ∷ Γ₀)  (A ∷ Γ₀' ++ Δ₃) (A₁ ⊸ B) | cases++-inj₂ (Δ₂ ++ A' ⊸ B' ∷ Γ₀) Γ (Γ₀' ++ Δ₃) A | cases++-inj₁ (Δ₁ ++ B ∷ Δ₂) Γ₀ (A ∷ Γ₀' ++ Δ₃) (A' ⊸ B') | cases++-inj₁ Γ₀ Γ₀' Δ₃ A =   ⊸c⊸c
+cong-ccut2 .(Δ₁ ++ A₁ ⊸ B ∷ Γ ++ Δ₂ ++ A' ⊸ B' ∷ Γ' ++ Γ₀') {Δ'} {A} refl (⊸c⊸c {Γ = Γ} {Γ'} {Δ₁} {Δ₂} {.(Γ₀' ++ A ∷ Δ')} {A₁} {B} {A'} {B'}) | inj₁ (.(Γ' ++ Γ₀') , refl , refl) | inj₂ (Γ₀' , refl , refl)
+  rewrite cases++-inj₁ Δ₁ (Γ ++ Δ₂ ++ B' ∷ Γ₀') (A ∷ Δ') (A₁ ⊸ B) | cases++-inj₁ Δ₁ (Γ ++ Δ₂ ++ A' ⊸ B' ∷ Γ' ++ Γ₀') (A ∷ Δ') (A₁ ⊸ B) | cases++-inj₂ (Δ₂ ++ B' ∷ Γ₀') Γ Δ' A | cases++-inj₂ (Δ₂ ++ A' ⊸ B' ∷ Γ' ++ Γ₀') Γ Δ' A | cases++-inj₁ (Δ₁ ++ B ∷ Δ₂) (Γ' ++ Γ₀') (A ∷ Δ') (A' ⊸ B') | cases++-inj₂ Γ₀' Γ' Δ' A = ⊸c⊸c
+cong-ccut2 .(Δ₁ ++ A₁ ⊸ B ∷ Γ ++ Δ₂) {.(Γ' ++ Δ₃)} {.(A' ⊸ B')} refl (⊸c⊸c {Γ = Γ} {Γ'} {Δ₁} {Δ₂} {Δ₃} {A₁} {B} {A'} {B'}) | inj₂ ([] , refl , refl)
+  rewrite cases++-inj₁ Δ₁ (Γ ++ Δ₂) (A' ⊸ B' ∷ Γ' ++ Δ₃) (A₁ ⊸ B)  | cases++-inj₂ Δ₂ Γ (Γ' ++ Δ₃) (A' ⊸ B') | cases++-inj₂ [] (Δ₁ ++ B ∷ Δ₂) (Γ' ++ Δ₃) (A' ⊸ B') = {!!}
+cong-ccut2 Δ₀ {.(Γ₀ ++ _ ⊸ _ ∷ Γ' ++ Δ₃)} {.x} r (⊸c⊸c {Γ = Γ} {Γ'} {Δ₁} {Δ₂} {Δ₃} {A₁} {B}) | inj₂ (x ∷ Γ₀ , refl , q) with cases++ Δ₁ Δ₀ ( Γ ++ Δ₂) (x ∷ Γ₀) (sym q)
+cong-ccut2 .(Δ₁ ++ A₁ ⊸ B ∷ Γ₀') {.(Γ₀ ++ _ ⊸ _ ∷ Γ' ++ Δ₃)} {.x} r (⊸c⊸c {Γ = Γ} {Γ'} {Δ₁} {Δ₂} {Δ₃} {A₁} {B}) | inj₂ (x ∷ Γ₀ , refl , q) | inj₁ (Γ₀' , refl , q') with cases++ Γ₀' Γ Γ₀ Δ₂ q'
+cong-ccut2 .(Δ₁ ++ A₁ ⊸ B ∷ Γ₀') {.((Γ₀'' ++ Δ₂) ++ A' ⊸ B' ∷ Γ' ++ Δ₃)} {.x} refl (⊸c⊸c {Γ = .(Γ₀' ++ x ∷ Γ₀'')} {Γ'} {Δ₁} {Δ₂} {Δ₃} {A₁} {B} {A'} {B'}) | inj₂ (x ∷ .(Γ₀'' ++ Δ₂) , refl , refl) | inj₁ (Γ₀' , refl , refl) | inj₁ (Γ₀'' , refl , refl)
+  rewrite cases++-inj₁ Δ₁ Γ₀' (x ∷ Γ₀'' ++ Δ₂ ++ B' ∷ Δ₃) (A₁ ⊸ B) | cases++-inj₁ Δ₁ Γ₀' (x ∷ Γ₀'' ++ Δ₂ ++ A' ⊸ B' ∷ Γ' ++ Δ₃) (A₁ ⊸ B) | cases++-inj₁ Γ₀' Γ₀'' (Δ₂ ++ B' ∷ Δ₃) x | cases++-inj₁ Γ₀' Γ₀'' (Δ₂ ++ A' ⊸ B' ∷ Γ' ++ Δ₃) x  = ⊸c⊸c
+cong-ccut2 {S}{Γ = Γ₁} .(Δ₁ ++ A₁ ⊸ B ∷ Γ ++ Γ₀'') {.(Γ₀ ++ A' ⊸ B' ∷ Γ' ++ Δ₃)} {.x} refl (⊸c⊸c {Γ = Γ} {Γ'} {Δ₁} {.(Γ₀'' ++ x ∷ Γ₀)} {Δ₃} {A₁} {B} {A'} {B'}) | inj₂ (x ∷ Γ₀ , refl , refl) | inj₁ (.(Γ ++ Γ₀'') , refl , refl) | inj₂ (Γ₀'' , refl , refl)
+  rewrite cases++-inj₁ Δ₁ (Γ ++ Γ₀'') (x ∷ Γ₀ ++ B' ∷ Δ₃) (A₁ ⊸ B) | cases++-inj₁ Δ₁ (Γ ++ Γ₀'') (x ∷ Γ₀ ++ A' ⊸ B' ∷ Γ' ++ Δ₃) (A₁ ⊸ B) | cases++-inj₂ Γ₀'' Γ (Γ₀ ++ B' ∷ Δ₃) x | cases++-inj₂ Γ₀'' Γ (Γ₀ ++ A' ⊸ B' ∷ Γ' ++ Δ₃) x | cases++-inj₂ (x ∷ Γ₀) (Δ₁ ++ B ∷ Γ₀'') (Γ' ++ Δ₃) (A' ⊸ B') = ⊸c⊸c {Δ₁ = Γ₀'' ++ asCxt S Γ₁ ++ Γ₀}
+cong-ccut2 Δ₀ {.((Γ ++ Δ₂) ++ A' ⊸ B' ∷ Γ' ++ Δ₃)} {.(A₁ ⊸ B)} refl (⊸c⊸c {Γ = Γ} {Γ'} {.Δ₀} {Δ₂} {Δ₃} {A₁} {B} {A'} {B'}) | inj₂ (.(A₁ ⊸ B) ∷ .(Γ ++ Δ₂) , refl , refl) | inj₂ ([] , refl , refl)
+  rewrite cases++-inj₂ [] Δ₀ (Γ ++ Δ₂ ++ B' ∷ Δ₃) (A₁ ⊸ B) | cases++-inj₂ [] Δ₀ (Γ ++ Δ₂ ++ A' ⊸ B' ∷ Γ' ++ Δ₃) (A₁ ⊸ B) = {!!}
+cong-ccut2 {S}{Γ = Γ₁} Δ₀ {.((Γ₀' ++ A₁ ⊸ B ∷ Γ ++ Δ₂) ++ A' ⊸ B' ∷ Γ' ++ Δ₃)} {.x} refl (⊸c⊸c {Γ = Γ} {Γ'} {.(Δ₀ ++ x ∷ Γ₀')} {Δ₂} {Δ₃} {A₁} {B} {A'} {B'}) | inj₂ (x ∷ .(Γ₀' ++ A₁ ⊸ B ∷ Γ ++ Δ₂) , refl , refl) | inj₂ (x ∷ Γ₀' , refl , refl)
+  rewrite cases++-inj₂ (x ∷ Γ₀') Δ₀ (Γ ++ Δ₂ ++ B' ∷ Δ₃) (A₁ ⊸ B) | cases++-inj₂ (x ∷ Γ₀') Δ₀ (Γ ++ Δ₂ ++ A' ⊸ B' ∷ Γ' ++ Δ₃) (A₁ ⊸ B) | cases++-inj₂ (x ∷ Γ₀' ++ B ∷ Δ₂) Δ₀ (Γ' ++ Δ₃) (A' ⊸ B') = ⊸c⊸c {Δ₀ = Δ₀ ++ asCxt S Γ₁ ++ Γ₀'}
 cong-ccut2 Δ₀ r ⊸c⊸c2 = {!!}
 cong-ccut2 Δ₀ r baseuf with cases∷ Δ₀ r
 cong-ccut2 {nothing} .[] refl baseuf | inj₁ (refl , refl , refl) = {!!}
@@ -658,9 +699,10 @@ cong-ccut2 .(` _ ∷ Γ₀) {Δ'} {A} r (baseuf {Γ}) | inj₂ (Γ₀ , p , refl
 cong-ccut2 .(` _ ∷ lmap ` Λ₁) {.(lmap ` Λ₂)} {.(` X)} refl (baseuf {.(Λ₁ ++ X ∷ Λ₂)}) | inj₂ (.(lmap ` Λ₁) , refl , refl) | Λ₁ , X ∷ Λ₂ , refl , refl , refl
   rewrite cases++-lmap-refl `  Λ₁ (X ∷ Λ₂) = {!!}
 
---   ⊸cuf : {Γ Δ₀ Δ₁ : Cxt}{A A' B C : Fma}
---     → {f : nothing ∣ Γ ⊢ A}{g : just A' ∣ Δ₀ ++ B ∷ Δ₁ ⊢ C}
---     → ⊸c (A' ∷ Δ₀) f (uf g) ≗ uf (⊸c Δ₀ f g)
+--   ⊸c⊸c : {S : Stp} {Γ Γ' Δ₀ Δ₁ Δ₂ : Cxt} {A B A' B' C : Fma}
+--     → {f : nothing ∣ Γ ⊢ A} {f' : nothing ∣ Γ' ⊢ A'} {g : S ∣ Δ₀ ++ B ∷ Δ₁ ++ B' ∷ Δ₂ ⊢ C} 
+--     → ⊸c (Δ₀ ++ _ ∷ Γ ++ Δ₁) f' (⊸c Δ₀ f g) ≗ ⊸c Δ₀ f (⊸c (Δ₀ ++ B ∷ Δ₁) f' g)
+
 
 
 
