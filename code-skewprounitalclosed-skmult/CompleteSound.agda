@@ -19,6 +19,7 @@ open import SeqCalc
 open import MulticatLaws
 open import Complete
 open import Sound
+open import CutsCong
 
 --open SkMult M
 
@@ -88,11 +89,11 @@ cong⊸r⋆-1 [] p = p
 cong⊸r⋆-1 {Γ = Γ} (A ∷ Δ) p = cong⊸r⋆-1 {Γ = Γ ++ A ∷ []} Δ (cong⊸r-1 p)
 
 scut⊸r⋆⊸r⋆-1 : ∀{S}{Γ} Δ {C}(f : S ∣ Γ ++ Δ ⊢ C)
-  → scut (⊸r⋆ Δ f) (⊸r⋆-1 Δ ax) ≡ f
+  → scut (⊸r⋆ Δ f) (⊸r⋆-1 Δ ax) ≗ f
 scut⊸r⋆⊸r⋆-1 Δ f =
-  trans (scut⊸r⋆-1 Δ (⊸r⋆ Δ f) ax)
-    (trans (cong (⊸r⋆-1 Δ) (scut-unit2 _))
-      (⊸r⋆-iso2 Δ f))
+  ≡-to-≗ (scut⊸r⋆-1 Δ (⊸r⋆ Δ f) ax)
+  ∙ (cong⊸r⋆-1 Δ (scut-unit2 _)
+  ∙ ≡-to-≗ (⊸r⋆-iso2 Δ f))
 
 ccut⊸r⋆ : {S T : Stp} → {Γ Δ : Cxt} → (Δ₀ Λ : Cxt) → {Δ' : Cxt} → {A C : Fma} → 
              (f : S ∣ Γ ⊢ A)  (g : T ∣ Δ ++ Λ ⊢ C)  → (r : Δ ≡ Δ₀ ++ A ∷ Δ') (s : Δ ++ Λ ≡ Δ₀ ++ A ∷ Δ' ++ Λ) →  
@@ -108,11 +109,11 @@ cmplt-L⋆ (B ∷ Δ) =
     scut (cmplt (L⋆ Δ)) (⊸r (⊸r (⊸l (uf (⊸l (uf ax) ax)) ax)))
   ≗〈 cong-scut1 (cmplt-L⋆ Δ) 〉
     ⊸r (⊸r (scut (ccut [] (uf (⊸l (uf ax) ax)) (⊸r⋆ Δ (⊸l (uf (⊸r⋆-1 Δ ax)) ax)) refl) ax))  
-  ≗〈 ⊸r (⊸r (≡-to-≗ (scut-unit2 (ccut [] (uf (⊸l (uf ax) ax)) (⊸r⋆ Δ (⊸l (uf (⊸r⋆-1 Δ ax)) ax)) refl)))) 〉 
+  ≗〈 ⊸r (⊸r (scut-unit2 (ccut [] (uf (⊸l (uf ax) ax)) (⊸r⋆ Δ (⊸l (uf (⊸r⋆-1 Δ ax)) ax)) refl))) 〉 
     ⊸r (⊸r (ccut [] (uf (⊸l (uf ax) ax)) (⊸r⋆ Δ (⊸l (uf (⊸r⋆-1 Δ ax)) ax)) refl))  
   ≗〈 ⊸r (⊸r (ccut⊸r⋆ [] Δ  (uf (⊸l (uf ax) ax)) (⊸l (uf (⊸r⋆-1 Δ ax)) ax) refl refl)) 〉 
     ⊸r (⊸r (⊸r⋆ Δ (ccut [] (uf (⊸l (uf ax) ax)) (⊸l (uf (⊸r⋆-1 Δ ax)) ax) refl)))
-  ≗〈 ⊸r (⊸r (cong⊸r⋆ Δ (⊸l (uf (~ (⊸r⋆-1⊸l Δ (uf ax) ax ∙ ⊸l refl (~ (≡-to-≗ (scut-unit _)))))) refl))) 〉
+  ≗〈 ⊸r (⊸r (cong⊸r⋆ Δ (⊸l (uf (~ (⊸r⋆-1⊸l Δ (uf ax) ax ∙ ⊸l refl (~ scut-unit _)))) refl))) 〉
     ⊸r (⊸r (⊸r⋆ Δ (⊸l (uf (⊸r⋆-1 Δ (⊸l (uf ax) ax))) ax)))
   qed≗
 
@@ -124,14 +125,19 @@ cmplt-L⋆ (B ∷ Δ) =
 ⊸l⋆ [] f = f
 ⊸l⋆ (B ∷ Γ) f = ⊸l (uf ax) (⊸l⋆ Γ f)
 
+cong⊸l⋆ : ∀ Γ {Δ A C} {f f' : just A ∣ Δ ⊢ C}
+  → f ≗ f' → ⊸l⋆ Γ f ≗ ⊸l⋆ Γ f'
+cong⊸l⋆ [] p = p
+cong⊸l⋆ (x ∷ Γ) p = ⊸l refl (cong⊸l⋆ Γ p)
 
 scut⊸r⋆⊸l⋆ : ∀ Γ {S Γ' Δ A C} {f : S ∣ Γ' ++ Γ ⊢ A} {g : just A ∣ Δ ⊢ C}
   → scut {_}{Γ'}{Γ ++ Δ} (⊸r⋆ Γ f) (⊸l⋆ Γ g) ≗ scut {_}{Γ' ++ Γ}{Δ} f g
 scut⊸r⋆⊸l⋆ [] = refl
 scut⊸r⋆⊸l⋆ (_ ∷ Γ) {Γ' = Γ'} {f = f}{g} =
   ~ (ccut-ass-scut Γ' (uf ax) (⊸r⋆ {_}{Γ' ++ _ ∷ []} Γ f) _ refl)
-  ∙ (≡-to-≗ (ccut-unit Γ' (scut (⊸r⋆ {_}{Γ' ++ _ ∷ []} Γ f) _) refl)
-  ∙ scut⊸r⋆⊸l⋆ Γ)
+  ∙ ≡-to-≗ (ccut-uf Γ' ax (scut (⊸r⋆ {_}{Γ' ++ _ ∷ []} Γ f) _) refl)
+  ∙ ccut-unit Γ' (scut (⊸r⋆ {_}{Γ' ++ _ ∷ []} Γ f) _) refl
+  ∙ scut⊸r⋆⊸l⋆ Γ
 
 [_∣cmplt]f : ∀ Γ {A C} {f : just A ⇒ C}
   → cmplt [ Γ ∣ f ]f ≗ ⊸r⋆ Γ (⊸l⋆ Γ (cmplt f))
@@ -143,7 +149,7 @@ cmpltsound (base f eq eq2) = refl
 cmpltsound (uf f) = 
   proof≗
     ⊸r (uf (scut (scut ax ax) (cmplt (sound f))))
-  ≗〈 ⊸r (uf (≡-to-≗ (trans (cong (λ x → scut x (cmplt (sound f))) (scut-unit _)) (scut-unit _)) ∙ cmpltsound f)) 〉
+  ≗〈 ⊸r (uf (cong-scut1 (scut-unit _) ∙ scut-unit _ ∙ cmpltsound f)) 〉
     ⊸r (uf (⊸r⋆ _ f))
   ≗〈 ⊸r (~ (⊸r⋆uf _ _)) 〉
     ⊸r (⊸r⋆ _ (uf f))
@@ -159,15 +165,15 @@ cmpltsound (⊸l {Γ = Γ}{Δ}{A}{B}{C} f g) =
     scut (⊸r (⊸l (uf ax) (⊸r⋆ Δ g))) (scut (cmplt (L⋆ Γ)) (⊸l (⊸r⋆ Γ f) ax))
   ≗〈 cong-scut2 (⊸r (⊸l (uf ax) (⊸r⋆ Δ g))) (cong-scut1 (cmplt-L⋆ Γ)) 〉
     scut (⊸r (⊸l (uf ax) (⊸r⋆ Δ g))) (scut (ccut [] (⊸r⋆ Γ f) (⊸r⋆ Γ (⊸l (uf (⊸r⋆-1 Γ ax)) ax)) refl) ax)
-  ≗〈 cong-scut2 (⊸r (⊸l (uf ax) (⊸r⋆ Δ g))) (≡-to-≗ (scut-unit2 (ccut [] (⊸r⋆ Γ f) (⊸r⋆ Γ (⊸l (uf (⊸r⋆-1 Γ ax)) ax)) refl))) 〉
+  ≗〈 cong-scut2 (⊸r (⊸l (uf ax) (⊸r⋆ Δ g))) (scut-unit2 (ccut [] (⊸r⋆ Γ f) (⊸r⋆ Γ (⊸l (uf (⊸r⋆-1 Γ ax)) ax)) refl)) 〉
     scut (⊸r (⊸l (uf ax) (⊸r⋆ Δ g))) (ccut [] (⊸r⋆ Γ f) (⊸r⋆ Γ (⊸l (uf (⊸r⋆-1 Γ ax)) ax)) refl)
   ≗〈 cong-scut2 (⊸r (⊸l (uf ax) (⊸r⋆ Δ g))) (ccut⊸r⋆ [] Γ (⊸r⋆ Γ f) (⊸l (uf (⊸r⋆-1 Γ ax)) ax) refl refl) 〉
     scut (⊸r (⊸l (uf ax) (⊸r⋆ Δ g))) (⊸r⋆ Γ (⊸l (scut (⊸r⋆ Γ f) (⊸r⋆-1 Γ ax)) ax))
   ≗〈 scut⊸r⋆ Γ (⊸r (⊸l (uf ax) (⊸r⋆ Δ g))) (⊸l (scut (⊸r⋆ Γ f) (⊸r⋆-1 Γ ax)) ax) 〉
     ⊸r⋆ Γ (⊸l (scut (scut (⊸r⋆ Γ f) (⊸r⋆-1 Γ ax)) ax) (scut (⊸r⋆ Δ g) ax))
-  ≗〈 cong⊸r⋆ Γ (⊸l (≡-to-≗ (scut-unit2 (scut (⊸r⋆ Γ f) (⊸r⋆-1 Γ ax)))) (≡-to-≗ (scut-unit2 (⊸r⋆ Δ g)))) 〉
+  ≗〈 cong⊸r⋆ Γ (⊸l (scut-unit2 (scut (⊸r⋆ Γ f) (⊸r⋆-1 Γ ax))) (scut-unit2 (⊸r⋆ Δ g))) 〉
     ⊸r⋆ Γ (⊸l (scut (⊸r⋆ Γ f) (⊸r⋆-1 Γ ax)) (⊸r⋆ Δ g))
-  ≗〈 cong⊸r⋆ Γ (⊸l (≡-to-≗ (scut⊸r⋆⊸r⋆-1 Γ f)) refl) 〉
+  ≗〈 cong⊸r⋆ Γ (⊸l (scut⊸r⋆⊸r⋆-1 Γ f) refl) 〉
     ⊸r⋆ Γ (⊸l f (⊸r⋆ Δ g))
   ≗〈 cong⊸r⋆ Γ (~ (⊸r⋆⊸l Δ f g)) 〉
     ⊸r⋆ Γ (⊸r⋆ Δ (⊸l f g))
@@ -182,8 +188,9 @@ cmpltsound (⊸c Δ₀ {Γ} {Δ₁} {A} {B} f g) =
   ≗〈 cong-scut2 (⊸r⋆ (Δ₀ ++ B ∷ Δ₁) g) [ Δ₀ ∣cmplt]f 〉
     scut (⊸r⋆ (Δ₀ ++ B ∷ Δ₁) g) (⊸r⋆ Δ₀ (⊸l⋆ Δ₀ {[]}
       (scut (cmplt (L⋆ Γ)) (⊸r (⊸l (uf (scut (cmplt (L⋆ Γ)) (⊸l (cmplt (sound f)) ax))) (scut ax ax))))))
-  ≗〈 ≡-to-≗ (cong (λ x → scut (⊸r⋆ (Δ₀ ++ B ∷ Δ₁) g) (⊸r⋆ Δ₀ (⊸l⋆ Δ₀ {[]}
-      (scut (cmplt (L⋆ Γ)) (⊸r (⊸l (uf (scut (cmplt (L⋆ Γ)) (⊸l (cmplt (sound f)) ax))) x)))))) (scut-unit _) ) 〉
+  ≗〈 cong-scut2 (⊸r⋆ (Δ₀ ++ B ∷ Δ₁) g)
+      (cong⊸r⋆ Δ₀ (cong⊸l⋆ Δ₀ (cong-scut2 (cmplt (L⋆ Γ))
+        (⊸r (⊸l refl (scut-unit _)))))) 〉
     scut (⊸r⋆ (Δ₀ ++ B ∷ Δ₁) g) (⊸r⋆ Δ₀ (⊸l⋆ Δ₀ {[]}
       (scut (cmplt (L⋆ Γ)) (⊸r (⊸l (uf (scut (cmplt (L⋆ Γ)) (⊸l (cmplt (sound f)) ax))) ax)))))
   ≗〈 scut⊸r⋆ Δ₀ (⊸r⋆ (Δ₀ ++ B ∷ Δ₁) g) _ 〉
@@ -201,9 +208,8 @@ cmpltsound (⊸c Δ₀ {Γ} {Δ₁} {A} {B} f g) =
       (scut (⊸r (⊸r⋆ Δ₁ g))
         (scut (ccut [] (uf (scut (ccut [] (⊸r⋆ Γ f) (⊸r⋆ Γ (⊸l (uf (⊸r⋆-1 Γ ax)) ax)) refl)  ax))
           (⊸r⋆ Γ (⊸l (uf (⊸r⋆-1 Γ ax)) ax)) refl) ax)))
-   ≗〈 cong⊸r⋆ Δ₀ (⊸r (≡-to-≗ (cong (scut (⊸r (⊸r⋆ Δ₁ g)))
-       (trans (scut-unit2 _) (cong (λ x → ccut [] (uf x) (⊸r⋆ Γ (⊸l (uf (⊸r⋆-1 Γ ax)) ax)) refl)
-         (scut-unit2 _)))))) 〉
+   ≗〈 cong⊸r⋆ Δ₀ (⊸r (cong-scut2 (⊸r (⊸r⋆ Δ₁ g)) (scut-unit2 _ ∙
+      cong-ccut1 [] (⊸r⋆ Γ (⊸l (uf (⊸r⋆-1 Γ ax)) ax)) refl (scut-unit2 _)))) 〉
     ⊸r⋆ Δ₀ (⊸r
       (scut (⊸r (⊸r⋆ Δ₁ g))
         (ccut [] (uf (ccut [] (⊸r⋆ Γ f) (⊸r⋆ Γ (⊸l (uf (⊸r⋆-1 Γ ax)) ax)) refl))
@@ -217,7 +223,7 @@ cmpltsound (⊸c Δ₀ {Γ} {Δ₁} {A} {B} f g) =
      ⊸r⋆ Δ₀ (⊸r (⊸r⋆ Γ
        (scut (ccut Δ₀ (uf (scut (ccut [] (⊸r⋆ Γ f) (⊸r⋆ Γ (⊸l (uf (⊸r⋆-1 Γ ax)) ax)) refl) (⊸r⋆-1 Γ ax)))
                       (⊸r⋆ {_}{Δ₀ ++ _ ∷ []} Δ₁ g) refl) ax)))
-   ≗〈 cong⊸r⋆ Δ₀ (⊸r (cong⊸r⋆ Γ (≡-to-≗ (scut-unit2 _)))) 〉
+   ≗〈 cong⊸r⋆ Δ₀ (⊸r (cong⊸r⋆ Γ (scut-unit2 _))) 〉
     ⊸r⋆ Δ₀ (⊸r (⊸r⋆ Γ
        (ccut Δ₀ (uf (scut (ccut [] (⊸r⋆ Γ f) (⊸r⋆ Γ (⊸l (uf (⊸r⋆-1 Γ ax)) ax)) refl) (⊸r⋆-1 Γ ax)))
                 (⊸r⋆ {_}{Δ₀ ++ _ ∷ []} Δ₁ g) refl)))
@@ -233,7 +239,7 @@ cmpltsound (⊸c Δ₀ {Γ} {Δ₁} {A} {B} f g) =
         (uf (≡-to-≗ (scut⊸r⋆-1 Γ (⊸r⋆ Γ (⊸l (scut (⊸r⋆ Γ f) (⊸r⋆-1 Γ ax)) ax)) _)))) 〉
     ⊸r⋆ (Δ₀ ++ A ⊸ B ∷ Γ ++ Δ₁)
          (ccut Δ₀ (uf (⊸r⋆-1 Γ (scut (⊸r⋆ Γ (ccut [] (⊸r⋆ Γ f) (⊸l (uf (⊸r⋆-1 Γ ax)) ax) refl)) ax))) g refl)
-   ≗〈 cong⊸r⋆ (Δ₀ ++ A ⊸ B ∷ Γ ++ Δ₁) (cong-ccut1 Δ₀ g refl (uf (cong⊸r⋆-1 Γ (≡-to-≗ (scut-unit2 _))))) 〉
+   ≗〈 cong⊸r⋆ (Δ₀ ++ A ⊸ B ∷ Γ ++ Δ₁) (cong-ccut1 Δ₀ g refl (uf (cong⊸r⋆-1 Γ (scut-unit2 _)))) 〉
     ⊸r⋆ (Δ₀ ++ A ⊸ B ∷ Γ ++ Δ₁)
          (ccut Δ₀ (uf (⊸r⋆-1 Γ (⊸r⋆ Γ (ccut [] (⊸r⋆ Γ f) (⊸l (uf (⊸r⋆-1 Γ ax)) ax) refl)))) g refl)
    ≗〈 cong⊸r⋆ (Δ₀ ++ A ⊸ B ∷ Γ ++ Δ₁) (cong-ccut1 Δ₀ g refl (uf (≡-to-≗ (⊸r⋆-iso2 Γ _)))) 〉
@@ -241,7 +247,7 @@ cmpltsound (⊸c Δ₀ {Γ} {Δ₁} {A} {B} f g) =
          (ccut Δ₀ (uf (ccut [] (⊸r⋆ Γ f) (⊸l (uf (⊸r⋆-1 Γ ax)) ax) refl)) g refl)
    ≗〈 refl 〉
      ⊸r⋆ (Δ₀ ++ A ⊸ B ∷ Γ ++ Δ₁) (ccut Δ₀ (uf (⊸l (scut (⊸r⋆ Γ f) (⊸r⋆-1 Γ ax)) ax)) g refl)
-   ≗〈 cong⊸r⋆ (Δ₀ ++ A ⊸ B ∷ Γ ++ Δ₁) (cong-ccut1 Δ₀ g refl (uf (⊸l (≡-to-≗ (scut⊸r⋆⊸r⋆-1 Γ f)) refl))) 〉
+   ≗〈 cong⊸r⋆ (Δ₀ ++ A ⊸ B ∷ Γ ++ Δ₁) (cong-ccut1 Δ₀ g refl (uf (⊸l (scut⊸r⋆⊸r⋆-1 Γ f) refl))) 〉
      ⊸r⋆ (Δ₀ ++ A ⊸ B ∷ Γ ++ Δ₁) (ccut Δ₀ (uf (⊸l f ax)) g refl)
    ≗〈 cong⊸r⋆ (Δ₀ ++ A ⊸ B ∷ Γ ++ Δ₁) (⊸c-alt Δ₀ f g refl) 〉
     ⊸r⋆ (Δ₀ ++ A ⊸ B ∷ Γ ++ Δ₁) (⊸c Δ₀ f g)

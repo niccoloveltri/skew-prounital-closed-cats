@@ -66,6 +66,12 @@ ccut-b-gen : ∀ {S T Γ} Δ₀ {Δ₁ X Y}
 ccut-b-gen {nothing} Δ₀ f g = ccut-b Δ₀ f g
 ccut-b-gen {just X'} Δ₀ f g = ccut-b Δ₀ (uf-b f) g
 
+cut-gen-uf-b : ∀ {S Γ} Δ₀ {Δ₁ X Y Z}
+    → (f : S ∣ Γ ⊢b Y) (g : just X ∣ Δ₀ ++ Y ∷ Δ₁ ⊢b Z)
+    → ccut-b-gen (X ∷ Δ₀) f (uf-b g) ≡ uf-b (ccut-b-gen Δ₀ f g)
+cut-gen-uf-b {nothing} Δ₀ f g = ccut-uf-b Δ₀ f g
+cut-gen-uf-b {just x} Δ₀ f g = ccut-uf-b Δ₀ (uf-b f) g
+
 {-
 record SkMult : Set₁ where
   field

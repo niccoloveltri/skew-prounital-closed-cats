@@ -10,6 +10,8 @@ open import FreeSkewClosed
 
 open import SeqCalc
 
+open import CutsCong
+
 open import MulticatLaws
 
 open import Sound

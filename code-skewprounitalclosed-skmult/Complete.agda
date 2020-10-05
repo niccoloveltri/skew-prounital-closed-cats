@@ -17,6 +17,7 @@ open import Formulae
 open import FreeSkewClosed
 open import SeqCalc
 open import MulticatLaws
+open import CutsCong
 open import Sound
 
 --open SkMult M
@@ -108,49 +109,48 @@ cmplt (base {Γ = Γ}{Δ} f eq eq2) = ⊸r⋆ Δ (base f eq eq2)
 ≐cmplt≗ (_∘_ {f = f}{k = k} p q) =
   cong-scut (≐cmplt≗ q) (≐cmplt≗ p)
 ≐cmplt≗ (p ⊸ q) = ⊸r (⊸l (uf (≐cmplt≗ p)) (≐cmplt≗ q))
-≐cmplt≗ (lid {f = f}) = ≡-to-≗ (scut-unit2 (cmplt f)) 
-≐cmplt≗ (rid {f = f}) = ≡-to-≗ (sym (scut-unit (cmplt f)))
+≐cmplt≗ (lid {f = f}) = scut-unit2 (cmplt f)
+≐cmplt≗ (rid {f = f}) = ~ scut-unit (cmplt f)
 ≐cmplt≗ (ass {f = f}{g}{h}) = 
   scut-ass-scut (cmplt h) (cmplt g) (cmplt f)
 ≐cmplt≗ (f⊸id {A}{B}) = refl
 ≐cmplt≗ f⊸∘ = refl
 ≐cmplt≗ (i p) = ⊸l (≐cmplt≗ p) refl
 ≐cmplt≗ (ni {e = e}) =
-  ⊸l (~ (≡-to-≗ (scut-unit2 _)))
-     (≡-to-≗ (trans (scut-unit _) (trans (scut-unit _) (sym (scut-unit2 _)))))
+  ⊸l (~ scut-unit2 _)
+     (scut-unit _ ∙ scut-unit _ ∙ ~ (scut-unit2 _))
 ≐cmplt≗ (nj {f = f}) =
-  ⊸r (uf (≡-to-≗ (trans (trans (scut-unit2 _) (scut-unit2 _))
-    (trans (sym (scut-unit _))
-      (cong (λ x → scut x (cmplt f)) (sym (scut-unit _)))))))
+  ⊸r (uf (scut-unit2 _ ∙ scut-unit2 _ ∙ ~ (scut-unit _) ∙ cong-scut1 (~ (scut-unit _))))
 ≐cmplt≗ (nL {f = f}{g}{h}) =
-  ⊸r (⊸r (⊸l (uf (⊸l
-     (uf (≡-to-≗
-       (trans (scut-unit _) (trans (scut-unit _)
-         (trans (sym (scut-unit2 _))
-           (cong (scut (cmplt f)) (sym (scut-unit _))))))))
-     (≡-to-≗ (trans (scut-unit2 _)
-       (trans (sym (scut-unit _))
-         (cong (λ x → scut x (cmplt g)) (sym (scut-unit _))))))))
-    (≡-to-≗ (trans (scut-unit _)
-      (trans (sym (scut-unit2 _))
-        (cong (scut (cmplt h)) (sym (scut-unit _))))))))
+  ⊸r (⊸r
+    (⊸l
+      (uf (⊸l (uf (scut-unit _ ∙ scut-unit _ ∙
+               ~ (cong-scut2 (cmplt f) (scut-unit _) ∙ scut-unit2 _ )))
+              (scut-unit2 _ ∙ ~ (cong-scut1 (scut-unit _) ∙ scut-unit _))))
+      (scut-unit _ ∙ ~ (cong-scut2 (cmplt h) (scut-unit _) ∙ scut-unit2 _))))
 ≐cmplt≗ LLL =
-  ⊸r (⊸r (⊸r (⊸l (uf (⊸l (uf (⊸l (uf
-      (≡-to-≗ (sym (trans (cong₂ scut (scut-unit _) refl)
-        (trans (scut-unit _) (trans (scut-unit _)
-          (trans (scut-unit2 _) (trans (scut-unit _) (scut-unit _)))))))))
-    refl)) (≡-to-≗ (sym (scut-unit2 _))))) (≡-to-≗ (sym (scut-unit _))))))
+  ⊸r (⊸r (⊸r
+    (⊸l (uf (⊸l (uf
+                (⊸l (uf (~ (cong-scut1 (scut-unit _)
+                            ∙ scut-unit _
+                            ∙ scut-unit _
+                            ∙ scut-unit2 _
+                            ∙ scut-unit _
+                            ∙ scut-unit _)))
+                    refl))
+                (~ scut-unit2 _)))
+        (~ scut-unit _))))
 ≐cmplt≗ ijL =
-  ⊸r (⊸l (uf (≡-to-≗ (trans (scut-unit _)
-     (trans (scut-unit2 _) (scut-unit _)))))
-    (≡-to-≗ (scut-unit _)))
+  ⊸r (⊸l (uf
+    (scut-unit _ ∙ scut-unit2 _ ∙ scut-unit _)) (scut-unit _))
 ≐cmplt≗ Lj =
-  ⊸r (⊸ruf ∙ uf (⊸r (⊸l refl (≡-to-≗ (trans (scut-unit2 _) (scut-unit _))))))
+  ⊸r (⊸ruf ∙ uf (⊸r (⊸l refl (scut-unit2 _ ∙ scut-unit _))))
 ≐cmplt≗ (iL {e = e}) =
-  ⊸r (⊸l (uf (⊸l (≡-to-≗
-    (trans (cong (scut (cmplt e)) (scut-unit _)) (scut-unit2 _)))
-    (≡-to-≗ (scut-unit _)))) (≡-to-≗ (scut-unit _)))
-≐cmplt≗ ij = ≡-to-≗ (scut-unit2 _) ∙ ≡-to-≗ (scut-unit2 _)
+  ⊸r (⊸l (uf
+         (⊸l (cong-scut2 (cmplt e) (scut-unit _) ∙ scut-unit2 _)
+             (scut-unit _)))
+     (scut-unit _))
+≐cmplt≗ ij = scut-unit2 _ ∙ scut-unit2 _
 ≐cmplt≗ baseax = refl
 ≐cmplt≗ (baseuf {Γ = Γ} {f = f}) =
   ⊸r (cong⊸r⋆ (lmap ` Γ) (baseuf ∙ uf
