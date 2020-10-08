@@ -73,12 +73,54 @@ ccut-par-ccut-b2 : ∀{S₁ S₂ T Γ₁ Γ₂ Δ₀ Δ₁ Δ₂ X Y Z}
 ccut-b2-ass-scut : ∀ {S T Γ Δ₀ Δ₁ Λ X Y Z}
   → (f : S ∣ Γ ⊢ ` X)(g : T ∣ Δ₀ ++ X ∷ Δ₁ ⊢b Y)(h : just Y ∣ Λ ⊢b Z)
   → ccut-b2 Δ₀ f (scut-b g h) ≗ scut (ccut-b2 Δ₀ f g) (base h refl refl)
-ccut-b2-ass-scut f g h = {!!}
+-- ccut-b2-ass-scut (base {nothing} x refl refl) g h =
+--   ≡-to-≗ (cong (λ x → base x refl refl) (ccut-scut-ass-b _  x g h))
+-- ccut-b2-ass-scut (base {just x₁} x refl refl) g h =
+--   ≡-to-≗ (cong (λ x → base x refl refl) (ccut-scut-ass-b _  (uf-b x) g h))
+-- ccut-b2-ass-scut (uf f) g h = ccut-b2-ass-scut f g h 
+-- ccut-b2-ass-scut {Δ₀ = Δ₀} (⊸l f f₁) g h = ⊸c (lmap ` Δ₀) refl (ccut-b2-ass-scut f₁ g h)
+-- ccut-b2-ass-scut {S} {Δ₀ = Δ₁} (⊸c Δ₀ f f₁) g h = ⊸c (lmap ` Δ₁ ++ asCxt S Δ₀) refl (ccut-b2-ass-scut f₁ g h)
 
 ccut-ass-ccut-b2-s : ∀ {S T Γ Δ₀ Δ₁ Γ' A X Y}
   → (f : S ∣ Γ ⊢ A)(g : just A ∣ Γ' ⊢ ` X)(h : T ∣ Δ₀ ++ X ∷ Δ₁ ⊢b Y)
   → ccut (lmap ` Δ₀) f (ccut-b2 Δ₀ g h) refl ≗ ccut-b2 Δ₀ (scut f g) h
-ccut-ass-ccut-b2-s f g h = {!!}
+-- ccut-ass-ccut-b2-s (base x refl refl) (base {nothing} x₁ () x₃) h
+-- ccut-ass-ccut-b2-s {Δ₀ = Δ₀} {Δ₁} (base {nothing} x refl refl) (base {just x₂} {Γ = Γ} x₁ refl refl) h
+--   rewrite cases++-lmap-refl ` Δ₀ (x₂ ∷ Γ ++ Δ₁) =
+--     ≡-to-≗ (cong (λ x → base x refl refl)
+--         (trans (ccut-ccut-ass-b [] Δ₀ x (uf-b x₁) h)
+--           (cong (λ x → ccut-b Δ₀ x h) (ccut-uf-b2 x x₁))))
+-- ccut-ass-ccut-b2-s {Δ₀ = Δ₀} {Δ₁} (base {just x₃} x refl refl) (base {just x₂} {Γ = Γ} x₁ refl refl) h
+--   rewrite cases++-lmap-refl ` Δ₀ (x₂ ∷ Γ ++ Δ₁) =
+--     ≡-to-≗ (cong (λ x → base x refl refl)
+--         (trans (ccut-ccut-ass-b [] Δ₀ (uf-b x) (uf-b x₁) h)
+--           (cong (λ x → ccut-b Δ₀ x h) (trans (ccut-uf-b2 (uf-b x) x₁) (scut-uf-b x x₁)))))
+-- ccut-ass-ccut-b2-s {Δ₀ = Δ₁} {Δ₂} (base {T = T}{Γ = Γ₁} {Y = Y} x refl refl) (⊸c Δ₀ {Γ} {Δ₃} {A} {B} g g₁) h
+--   rewrite cases++-inj₂ (` Y ∷ Δ₀) (lmap ` Δ₁) (Γ ++ Δ₃ ++ lmap ` Δ₂) (A ⊸ B) =
+--     ⊸c (lmap ` Δ₁ ++ lmap ` (asCxt T Γ₁) ++ Δ₀) refl (ccut-ass-ccut-b2-s (base x refl refl) g₁ h)
+-- ccut-ass-ccut-b2-s {Δ₀ = Δ₀} (uf f) g h =
+--   ≡-to-≗ (ccut-uf (lmap ` Δ₀) f (ccut-b2 Δ₀ g h) refl) ∙ ccut-ass-ccut-b2-s f g h
+-- ccut-ass-ccut-b2-s (⊸r f) (base {nothing} x () x₂) h
+-- ccut-ass-ccut-b2-s (⊸r f) (base {just x₁} x () x₂) h
+-- ccut-ass-ccut-b2-s {Γ = Γ₁} {Δ₀} {Δ₁} (⊸r {A = A} {B} f) (⊸l {Γ} {Δ} g g₁) h 
+--   rewrite cases++-inj₂ [] (lmap ` Δ₀) (Γ ++ Δ ++ lmap ` Δ₁) (A ⊸ B) = ccut-ass-ccut-b2-s (ccut Γ₁ g f refl) g₁ h
+-- ccut-ass-ccut-b2-s {S} {Γ = Γ₁} {Δ₁} {Δ₂} (⊸r {A = A} {B} f) (⊸c Δ₀ {Γ} {Δ₃} {A₁} {B₁} g g₁) h
+--   rewrite cases++-inj₂ (A ⊸ B ∷ Δ₀) (lmap ` Δ₁) (Γ ++ Δ₃ ++ lmap ` Δ₂) (A₁ ⊸ B₁) =
+--     ⊸c (lmap ` Δ₁ ++ asCxt S Γ₁ ++ Δ₀) refl (ccut-ass-ccut-b2-s (⊸r f) g₁ h)
+-- ccut-ass-ccut-b2-s {Δ₀ = Δ₀} (⊸l f f₁) g h =
+--   ccut⊸l (lmap ` Δ₀) f f₁ (ccut-b2 Δ₀ g h) refl
+--   ∙ ⊸c (lmap ` Δ₀) refl (ccut-ass-ccut-b2-s f₁ g h)
+-- ccut-ass-ccut-b2-s {S} {Δ₀ = Δ₁} (⊸c Δ₀ f f₁) g h =
+--   ccut⊸c (lmap ` Δ₁) Δ₀ f f₁ (ccut-b2 Δ₁ g h) refl
+--   ∙ ⊸c (lmap ` Δ₁ ++ asCxt S Δ₀) refl (ccut-ass-ccut-b2-s f₁ g h)
+
+ccut-ass-ccut-b2 : ∀ {S₁ S₂ T Γ Δ₀ Δ₁ Δ Λ₀ Λ₁ A X Y}
+  → (f : S₁ ∣ Γ ⊢ A)(g : S₂ ∣ Δ ⊢ ` X)(h : T ∣ Λ₀ ++ X ∷ Λ₁ ⊢b Y)
+  → (eq : Δ ≡ Δ₀ ++ A ∷ Δ₁)
+  → ccut (lmap ` Λ₀ ++ asCxt S₂ Δ₀) f (ccut-b2 Λ₀ (subst-cxt eq g) h) refl
+         ≗ ccut-b2 Λ₀ (ccut Δ₀ f g eq) h
+ccut-ass-ccut-b2 f g h = {!!}
+
 
 scut-par-ccut : {S T : Stp}{Γ₁ Γ₂ Δ : Cxt} (Δ₀ : Cxt) {Δ' : Cxt}{A₁ A₂ C : Fma}
       → (f₁ : T ∣ Γ₁ ⊢ A₁)(f₂ : S ∣ Γ₂ ⊢ A₂)(g : just A₁ ∣ Δ ⊢ C)
@@ -132,10 +174,15 @@ pr-ccut-ass-scut : ∀ {S T Γ Δ Δ₀ Δ₁ Λ A B C D}
 pr-ccut-ass-scut2 : ∀ {S T Γ Δ Δ₀ Δ₁ Λ A B C D}
   → (k : S ∣ Λ ⊢ D)(f : just D ∣ Γ ⊢ A ⊸ B)(g : nothing ∣ Δ ⊢ A)(h : T ∣ Δ₀ ++ B ∷ Δ₁ ⊢ C)
   → ccut Δ₀ k (pr-ccut Δ₀ f g h) refl ≗ pr-ccut Δ₀ (scut k f) g h
--- pr-ccut-ass-pr-ccut-s : ∀ {S T Γ Δ} Δ₀ {Δ' Γ' A B C}
---   → (f' : S ∣ Γ ⊢ A ⊸ B)(g' : just A ∣ Γ' ⊢ A)
---   → (f : just B ∣ Γ₁ ⊢ A' ⊸ B')(g : nothing ∣ Γ₁' ⊢ A')(h : T ∣ Δ₀ ++ B' ∷ Δ₁ ⊢ C)
---   → pr-ccut Δ₀ f' g' (pr-ccut Δ₀ f g h) ≗ pr-ccut Δ₀ (scut f' g) h r
+pr-ccut-ass-ccut : ∀ {S₁ S₂ T Γ Γ₀ Γ₁ Γ' Δ Λ₀ Λ₁ A A' B C}
+  → (f : S₁ ∣ Γ ⊢ A')(g : S₂ ∣ Γ' ⊢ A ⊸ B)(h : nothing ∣ Δ ⊢ A)(k : T ∣ Λ₀ ++ B ∷ Λ₁ ⊢ C)
+  → (r : Γ' ≡ Γ₀ ++ A' ∷ Γ₁) 
+  → ccut (Λ₀ ++ asCxt S₂ Γ₀) f (pr-ccut Λ₀ (subst-cxt r g) h k) refl
+         ≗ pr-ccut Λ₀ (ccut Γ₀ f g r) h k
+-- -- pr-ccut-ass-pr-ccut-s : ∀ {S T Γ Δ} Δ₀ {Δ' Γ' A B C}
+-- --   → (f' : S ∣ Γ ⊢ A ⊸ B)(g' : just A ∣ Γ' ⊢ A)
+-- --   → (f : just B ∣ Γ₁ ⊢ A' ⊸ B')(g : nothing ∣ Γ₁' ⊢ A')(h : T ∣ Δ₀ ++ B' ∷ Δ₁ ⊢ C)
+-- --   → pr-ccut Δ₀ f' g' (pr-ccut Δ₀ f g h) ≗ pr-ccut Δ₀ (scut f' g) h r
 
 
 -- scut-par-ccut Δ₀ {Δ'} {A₂ = A₂} (base f₁ refl refl) f₂ (base {just X} {Γ = Γ} g refl eq) refl with cases++-lmap ` Δ₀ (A₂ ∷ Δ') Γ eq
@@ -410,7 +457,55 @@ pr-ccut-ass-scut2 : ∀ {S T Γ Δ Δ₀ Δ₁ Λ A B C D}
 --     ⊸c (Δ₁ ++ asCxt S Λ ++ Δ₀) refl (pr-ccut-ass-scut2 k f₁ g h)
 --     ∙ ~ cong-pr-ccut1 Δ₁ (scut⊸c Δ₀ k f f₁) g h
 
-ccut-ass-ccut Γ₀ Δ₀ f g h r = {!!}
+
+-- ccut-ass-ccut {Γ = Γ} Γ₀ Δ₀ {Δ'} {B = B} f g (base {Γ = Γ₁} x refl x₂) refl with cases++-lmap ` Δ₀ (B ∷ Δ') Γ₁ x₂
+-- ccut-ass-ccut {Γ = Γ} Γ₀ .(lmap ` Λ₁) {.(lmap ` Λ₂)} {B = .(` X)} f g (base {Γ = .(Λ₁ ++ X ∷ Λ₂)} x refl refl) refl | Λ₁ , X ∷ Λ₂ , refl , refl , refl
+--   = ccut-ass-ccut-b2 f g x refl
+-- ccut-ass-ccut Γ₀ Δ₀ f g (uf h) r with cases∷ Δ₀ r
+-- ccut-ass-ccut {S₂ = nothing} Γ₀ .[] f g (uf h) r | inj₁ (refl , refl , refl) = ccut-ass-scut Γ₀ f g h refl
+-- ccut-ass-ccut {S₂ = just x} Γ₀ .[] f g (uf h) r | inj₁ (refl , refl , refl) = uf (ccut-ass-scut Γ₀ f g h refl)
+-- ... | inj₂ (Γ₀' , refl , refl) = uf (ccut-ass-ccut Γ₀ Γ₀' f g h refl)
+-- ccut-ass-ccut Γ₀ Δ₀ f g (⊸r h) refl = ⊸r (ccut-ass-ccut Γ₀ Δ₀ f g h refl)
+-- ccut-ass-ccut Γ₀ Δ₀ {Δ'} f g (⊸l {Γ} {Δ} h h₁) r with cases++ Δ₀ Γ Δ' Δ r
+-- ccut-ass-ccut {S₂ = S₂} Γ₀ Δ₀ {.(Γ₀' ++ Δ)} {Γ'} {A} f g (⊸l {.(Δ₀ ++ _ ∷ Γ₀')} {Δ} h h₁) refl | inj₁ (Γ₀' , refl , refl)
+--   rewrite cases++-inj₁ (Δ₀ ++ asCxt S₂ Γ₀) (Γ' ++ Γ₀') Δ A
+--     = ⊸l (ccut-ass-ccut Γ₀ Δ₀ f g h refl) refl
+-- ccut-ass-ccut {S₂ = S₂} Γ₀ .(Γ ++ Γ₀') {Δ'} {Γ'} {A} f g (⊸l {Γ} {.(Γ₀' ++ _ ∷ Δ')} h h₁) refl | inj₂ (Γ₀' , refl , refl)
+--   rewrite cases++-inj₂ (Γ₀' ++ asCxt S₂ Γ₀) Γ (Γ' ++ Δ') A
+--     = ⊸l refl (ccut-ass-ccut Γ₀ Γ₀' f g h₁ refl)
+-- ccut-ass-ccut {S₂ = S₂} Γ₀ Δ₀ {Δ'} {B = B} f g (⊸c Δ₁ {Γ} {Δ₂} h h₁) r with cases++ Δ₁ Δ₀ (Γ ++ Δ₂) (B ∷ Δ') (sym r)
+-- ccut-ass-ccut {S₂ = S₂} Γ₀ .(Δ₁ ++ _ ⊸ _ ∷ Γ₀') {Δ'} {B = B} f g (⊸c Δ₁ {Γ} {Δ₂} h h₁) r | inj₁ (Γ₀' , refl , q) with cases++ Γ₀' Γ Δ' Δ₂ q
+-- ccut-ass-ccut {S₂ = S₂} Γ₀ .(Δ₁ ++ A₁ ⊸ B₁ ∷ Γ₀') {.(Δ₀ ++ Δ₂)} {Γ'} {A} {B} f g (⊸c Δ₁ {.(Γ₀' ++ B ∷ Δ₀)} {Δ₂} {A₁} {B₁} h h₁) refl | inj₁ (Γ₀' , refl , refl) | inj₁ (Δ₀ , refl , refl)
+--   rewrite cases++-inj₁ Δ₁ (Γ₀' ++ asCxt S₂ Γ₀)  (A ∷ Γ' ++ Δ₀ ++ Δ₂) (A₁ ⊸ B₁) | cases++-inj₁ (Γ₀' ++ asCxt S₂ Γ₀) (Γ' ++ Δ₀) Δ₂ A
+--     = ⊸c Δ₁ (ccut-ass-ccut Γ₀ Γ₀' f g h refl) refl
+-- ccut-ass-ccut {S₂ = S₂} Γ₀ .(Δ₁ ++ A₁ ⊸ B₁ ∷ Γ ++ Δ₀) {Δ'} {Γ'} {A} {B} f g (⊸c Δ₁ {Γ} {.(Δ₀ ++ B ∷ Δ')} {A₁} {B₁} h h₁) refl | inj₁ (.(Γ ++ Δ₀) , refl , refl) | inj₂ (Δ₀ , refl , refl)
+--   rewrite cases++-inj₁ Δ₁ (Γ ++ Δ₀ ++ asCxt S₂ Γ₀) (A ∷ Γ' ++ Δ') (A₁ ⊸ B₁) | cases++-inj₂ (Δ₀ ++ asCxt S₂ Γ₀) Γ (Γ' ++ Δ') A
+--     = ⊸c Δ₁ refl (ccut-ass-ccut Γ₀ (Δ₁ ++ _ ∷ Δ₀) f g h₁ refl)
+-- ccut-ass-ccut {S₂ = S₂} Γ₀ _ {.(Γ ++ Δ₂)} {B = .(_ ⊸ _)} f g (⊸c _ {Γ} {Δ₂} h h₁) refl | inj₂ ([] , refl , refl) = pr-ccut-ass-ccut f g h h₁ refl
+-- ccut-ass-ccut {S₁}{S₂ = S₂}{Γ = Γ₁} Γ₀ Δ₀ {.(Γ₀' ++ A₁ ⊸ B ∷ Γ ++ Δ₂)} {Γ'} {A} {.x} f g (⊸c .(Δ₀ ++ x ∷ Γ₀') {Γ} {Δ₂} {A₁} {B} h h₁) refl | inj₂ (x ∷ Γ₀' , refl , refl)
+--   rewrite cases++-inj₂ (A ∷ Γ' ++ Γ₀') (Δ₀ ++ asCxt S₂ Γ₀) (Γ ++ Δ₂) (A₁ ⊸ B) =
+--     ⊸c (Δ₀ ++ asCxt S₂ Γ₀ ++ asCxt S₁ Γ₁ ++ Γ' ++ Γ₀') refl (ccut-ass-ccut Γ₀ Δ₀ f g h₁ refl)
+
+pr-ccut-ass-ccut {Γ₀ = Γ₀} f (uf g) h k r with cases∷ Γ₀ r
+pr-ccut-ass-ccut {nothing} {Γ₀ = .[]} f (uf g) h k refl | inj₁ (refl , refl , refl) = pr-ccut-ass-scut2 f g h k
+pr-ccut-ass-ccut {just x} {Γ₀ = .[]} f (uf g) h k refl | inj₁ (refl , refl , refl) = pr-ccut-ass-scut2 f g h k
+pr-ccut-ass-ccut {Γ₀ = .(_ ∷ Δ₀)} f (uf g) h k refl | inj₂ (Δ₀ , refl , refl) = pr-ccut-ass-ccut f g h k refl
+pr-ccut-ass-ccut {S₁} {S₂} {Γ₀ = Γ₀} {Γ₁} {Λ₀ = Λ₀} {A' = A'} f (⊸r g) h k refl
+  = ccut-ass-ccut Γ₀ Λ₀ f (ccut (Γ₀ ++ A' ∷ Γ₁) h g refl) k refl
+    ∙ cong-ccut1 Λ₀ k refl (ccut-par-ccut Γ₀ f h g refl)
+pr-ccut-ass-ccut {Γ₀ = Γ₀} {Γ₁} f (⊸l {Γ} {Δ} g g₁) h k r with  cases++ Γ₀ Γ Γ₁ Δ r
+pr-ccut-ass-ccut {Γ₀ = .(Γ ++ Γ₀')} {Γ₁} {Δ = Δ} {Λ₀} {Λ₁} {A' = A'} f (⊸l {Γ} {.(Γ₀' ++ A' ∷ Γ₁)} {A} {B} g g₁) h k refl | inj₂ (Γ₀' , refl , refl)
+  rewrite cases++-inj₁ Λ₀ (Γ ++ Γ₀') (A' ∷ Γ₁ ++ Δ ++ Λ₁) (A ⊸ B) | cases++-inj₂ Γ₀' Γ (Γ₁ ++ Δ ++ Λ₁) A'
+    = ⊸c Λ₀ refl (pr-ccut-ass-ccut f g₁ h k refl)
+pr-ccut-ass-ccut {Γ₀ = Γ₀} {.(Γ₀' ++ Δ)} {Δ = Δ₁} {Λ₀} {Λ₁} {A' = A'} f (⊸l {.(Γ₀ ++ A' ∷ Γ₀')} {Δ} {A} {B} g g₁) h k refl | inj₁ (Γ₀' , refl , refl)
+  rewrite cases++-inj₁ Λ₀ Γ₀ (A' ∷ Γ₀' ++ Δ ++ Δ₁ ++ Λ₁) (A ⊸ B) | cases++-inj₁ Γ₀ Γ₀' (Δ ++ Δ₁ ++ Λ₁) A' = refl
+pr-ccut-ass-ccut {S₂ = S₂} {Γ = Γ} {Γ₀} {Γ₂} {A' = A'} f (⊸c Δ₀ {Γ₁} {Δ₁} g g₁) h k r with cases++ Δ₀ Γ₀ (Γ₁ ++ Δ₁) (A' ∷ Γ₂) (sym r)
+pr-ccut-ass-ccut {S₂ = S₂} {Γ = Γ} {.(Δ₀ ++ _ ⊸ _ ∷ Γ₀')} {Γ₂} {A' = A'} f (⊸c Δ₀ {Γ₁} {Δ₁} g g₁) h k r | inj₁ (Γ₀' , refl , q) with  cases++ Γ₀' Γ₁ Γ₂ Δ₁ q
+pr-ccut-ass-ccut {S₂ = S₂} {Γ = Γ} {.(Δ₀ ++ _ ⊸ _ ∷ Γ₀')} {.(Γ₀'' ++ Δ₁)} {A' = A'} f (⊸c Δ₀ {.(Γ₀' ++ A' ∷ Γ₀'')} {Δ₁} g g₁) h k refl | inj₁ (Γ₀' , refl , refl) | inj₁ (Γ₀'' , refl , refl) = {!!}
+pr-ccut-ass-ccut {S₂ = S₂} {Γ = Γ} {.(Δ₀ ++ _ ⊸ _ ∷ Γ₁ ++ Γ₀'')} {Γ₂} {A' = A'} f (⊸c Δ₀ {Γ₁} {.(Γ₀'' ++ A' ∷ Γ₂)} g g₁) h k refl | inj₁ (.(Γ₁ ++ Γ₀'') , refl , refl) | inj₂ (Γ₀'' , refl , refl) = {!!}
+pr-ccut-ass-ccut {S₂ = S₂} {Γ = Γ} {.Δ₀} {.(Γ₁ ++ Δ₁)} {Δ = Δ} {Λ₀} {Λ₁} {A' = .(A ⊸ B)} f (⊸c Δ₀ {Γ₁} {Δ₁} {A} {B} g g₁) h k refl | inj₂ ([] , refl , refl)
+  rewrite cases++-inj₂ [] (Λ₀ ++ asCxt S₂ Δ₀) (Γ₁ ++ Δ₁ ++ Δ ++ Λ₁) (A ⊸ B) = {!!}
+pr-ccut-ass-ccut {S₂ = S₂} {Γ = Γ} {Γ₀} {.(Γ₀' ++ _ ⊸ _ ∷ Γ₁ ++ Δ₁)} {A' = .x} f (⊸c .(Γ₀ ++ x ∷ Γ₀') {Γ₁} {Δ₁} g g₁) h k refl | inj₂ (x ∷ Γ₀' , refl , refl) = {!!}
 
 
 
