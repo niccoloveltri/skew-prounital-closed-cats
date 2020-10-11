@@ -21,12 +21,6 @@ open import SeqCalc
 
 -- interpretation of sequents into morphisms
 
-infix 20 [_∣_]f
-
-[_∣_]f : ∀ Γ {B C} → just B ⇒ C → just [ Γ ∣ B ] ⇒ [ Γ ∣ C ]
-[ [] ∣ g ]f = g
-[ A ∷ Γ ∣ g ]f = id ⊸ [ Γ ∣ g ]f
-
 [_∣id]f : ∀ Γ {C} → [ Γ ∣ id {C} ]f ≐ id
 [ [] ∣id]f = refl
 [ A ∷ Γ ∣id]f = (refl ⊸ [ Γ ∣id]f) ∙ f⊸id
@@ -40,16 +34,6 @@ infix 20 [_∣_]f
   → f ≐ g → [ Γ ∣ f ]f ≐ [ Γ ∣ g ]f
 [ [] ∣≐]f p = p
 [ A ∷ Γ ∣≐]f p = refl ⊸ [ Γ ∣≐]f p
-
-φ : (Γ Δ : Cxt) (C : Fma) → [ Γ ++ Δ ∣ C ] ≡ [ Γ ∣ [ Δ ∣ C ] ]
-φ [] Δ C = refl
-φ (A ∷ Γ) Δ C = cong (_⊸_ A) (φ Γ Δ C)
-
-{-# REWRITE φ #-}
-
-L⋆ : (Γ : Cxt) {B C : Fma} → just (B ⊸ C) ⇒ [ Γ ∣ B ] ⊸ [ Γ ∣ C ]
-L⋆ [] = id
-L⋆ (A ∷ Γ) = L ∘ L⋆ Γ
 
 nL⋆ : ∀ Γ {A}{B}{C} (g : just B ⇒ C)
   → L⋆ Γ ∘ g ⊸ id {A} ≐ [ Γ ∣ g ]f ⊸ id ∘ L⋆ Γ

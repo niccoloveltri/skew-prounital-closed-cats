@@ -32,6 +32,22 @@ data _⇒_ : Stp → Fma → Set where
   i : {A B : Fma} → nothing ⇒ A → just (A ⊸ B) ⇒ B
   L : {A B C : Fma} → just (B ⊸ C) ⇒ (A ⊸ B) ⊸ (A ⊸ C)
 
+infix 20 [_∣_]f
+
+[_∣_]f : ∀ Γ {B C} → just B ⇒ C → just [ Γ ∣ B ] ⇒ [ Γ ∣ C ]
+[ [] ∣ g ]f = g
+[ A ∷ Γ ∣ g ]f = id ⊸ [ Γ ∣ g ]f
+
+φ : (Γ Δ : Cxt) (C : Fma) → [ Γ ++ Δ ∣ C ] ≡ [ Γ ∣ [ Δ ∣ C ] ]
+φ [] Δ C = refl
+φ (A ∷ Γ) Δ C = cong (_⊸_ A) (φ Γ Δ C)
+
+{-# REWRITE φ #-}
+
+L⋆ : (Γ : Cxt) {B C : Fma} → just (B ⊸ C) ⇒ [ Γ ∣ B ] ⊸ [ Γ ∣ C ]
+L⋆ [] = id
+L⋆ (A ∷ Γ) = L ∘ L⋆ Γ
+
 infix 15 _≐_
 infixl 20 _∙_
 infix 21 ~_
@@ -81,9 +97,14 @@ data _≐_ : {S : Stp}{B : Fma} → S ⇒ B → S ⇒ B → Set where
     → base (ax-b {X}) refl refl ≐ id
   baseuf : ∀ {Γ X Y} {f : just X ∣ Γ ⊢b Y}
     → base (uf-b f) refl refl ≐ id ⊸ base f refl refl ∘ j
-
-
-
+  basescut : ∀ {T Γ Δ X Y} {f : T ∣ Γ ⊢b X} {g : just X ∣ Δ ⊢b Y}
+    → base (scut-b f g) refl refl
+           ≐ [ lmap ` Γ ∣ base g refl refl ]f ∘ base f refl refl
+  baseccut : ∀ {T Γ Δ₀ Δ₁ X Y} {f : nothing ∣ Γ ⊢b X} {g : T ∣ Δ₀ ++ X ∷ Δ₁ ⊢b Y}
+    → base (ccut-b Δ₀ f g) refl refl
+           ≐ [ lmap ` Δ₀ ∣ i (base f refl refl) ∘ L⋆ (lmap ` Γ) ]f
+               ∘ base {Δ = lmap ` (Δ₀ ++ X ∷ Δ₁)} g refl refl
+      
 ≡-to-≐ : ∀{A}{B}{f g : A ⇒ B} → f ≡ g → f ≐ g
 ≡-to-≐ refl = refl
 

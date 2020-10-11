@@ -98,6 +98,93 @@ cmplt j = ⊸r (uf ax)
 cmplt L = ⊸r (⊸r (⊸l (uf (⊸l (uf ax) ax)) ax))
 cmplt (base {Γ = Γ}{Δ} f eq eq2) = ⊸r⋆ Δ (base f eq eq2)
 
+⊸l⋆ : ∀ Γ {Δ A C} (f : just A ∣ Δ ⊢ C)→ just [ Γ ∣ A ] ∣ Γ ++ Δ ⊢ C
+⊸l⋆ [] f = f
+⊸l⋆ (B ∷ Γ) f = ⊸l (uf ax) (⊸l⋆ Γ f)
+
+cong⊸l⋆ : ∀ Γ {Δ A C} {f f' : just A ∣ Δ ⊢ C}
+  → f ≗ f' → ⊸l⋆ Γ f ≗ ⊸l⋆ Γ f'
+cong⊸l⋆ [] p = p
+cong⊸l⋆ (x ∷ Γ) p = ⊸l refl (cong⊸l⋆ Γ p)
+
+scut⊸r⋆⊸l⋆ : ∀ Γ {S Γ' Δ A C} {f : S ∣ Γ' ++ Γ ⊢ A} {g : just A ∣ Δ ⊢ C}
+  → scut {_}{Γ'}{Γ ++ Δ} (⊸r⋆ Γ f) (⊸l⋆ Γ g) ≗ scut {_}{Γ' ++ Γ}{Δ} f g
+scut⊸r⋆⊸l⋆ [] = refl
+scut⊸r⋆⊸l⋆ (_ ∷ Γ) {Γ' = Γ'} {f = f}{g} =
+  ~ (ccut-ass-scut Γ' (uf ax) (⊸r⋆ {_}{Γ' ++ _ ∷ []} Γ f) _ refl)
+  ∙ ≡-to-≗ (ccut-uf Γ' ax (scut (⊸r⋆ {_}{Γ' ++ _ ∷ []} Γ f) _) refl)
+  ∙ ccut-unit Γ' (scut (⊸r⋆ {_}{Γ' ++ _ ∷ []} Γ f) _) refl
+  ∙ scut⊸r⋆⊸l⋆ Γ
+
+[_∣cmplt]f : ∀ Γ {A C} {f : just A ⇒ C}
+  → cmplt [ Γ ∣ f ]f ≗ ⊸r⋆ Γ (⊸l⋆ Γ (cmplt f))
+[ [] ∣cmplt]f = refl
+[ _ ∷ Γ ∣cmplt]f = ⊸r (⊸l refl [ Γ ∣cmplt]f ∙ ~ ⊸r⋆⊸l Γ _ _)
+
+ccut⊸r⋆ : {S T : Stp} → {Γ Δ : Cxt} → (Δ₀ Λ : Cxt) → {Δ' : Cxt} → {A C : Fma} → 
+             (f : S ∣ Γ ⊢ A)  (g : T ∣ Δ ++ Λ ⊢ C)  → (r : Δ ≡ Δ₀ ++ A ∷ Δ') (s : Δ ++ Λ ≡ Δ₀ ++ A ∷ Δ' ++ Λ) →  
+                                        ccut Δ₀ f (⊸r⋆ Λ g) r ≗ ⊸r⋆ Λ (ccut Δ₀ {Δ' ++ Λ} f g s)
+ccut⊸r⋆ Δ₀ [] f g refl refl = refl
+ccut⊸r⋆ Δ₀ (A ∷ Λ) {Δ'} {B} f g refl refl = ⊸r (ccut⊸r⋆ {Δ = Δ₀ ++ B ∷ Δ' ++ A ∷ []} Δ₀ Λ f g refl refl )
+
+cmplt-L⋆ : (Δ : Cxt) {A C : Fma}
+  → cmplt (L⋆ Δ {A}{C}) ≗ ⊸r {Γ = []} (⊸r⋆ Δ (⊸l (uf (⊸r⋆-1 Δ ax)) ax))
+cmplt-L⋆ [] = refl
+cmplt-L⋆ (B ∷ Δ) =
+  proof≗
+    scut (cmplt (L⋆ Δ)) (⊸r (⊸r (⊸l (uf (⊸l (uf ax) ax)) ax)))
+  ≗〈 cong-scut1 (cmplt-L⋆ Δ) 〉
+    ⊸r (⊸r (scut (ccut [] (uf (⊸l (uf ax) ax)) (⊸r⋆ Δ (⊸l (uf (⊸r⋆-1 Δ ax)) ax)) refl) ax))  
+  ≗〈 ⊸r (⊸r (scut-unit2 (ccut [] (uf (⊸l (uf ax) ax)) (⊸r⋆ Δ (⊸l (uf (⊸r⋆-1 Δ ax)) ax)) refl))) 〉 
+    ⊸r (⊸r (ccut [] (uf (⊸l (uf ax) ax)) (⊸r⋆ Δ (⊸l (uf (⊸r⋆-1 Δ ax)) ax)) refl))  
+  ≗〈 ⊸r (⊸r (ccut⊸r⋆ [] Δ  (uf (⊸l (uf ax) ax)) (⊸l (uf (⊸r⋆-1 Δ ax)) ax) refl refl)) 〉 
+    ⊸r (⊸r (⊸r⋆ Δ (ccut [] (uf (⊸l (uf ax) ax)) (⊸l (uf (⊸r⋆-1 Δ ax)) ax) refl)))
+  ≗〈 ⊸r (⊸r (cong⊸r⋆ Δ (⊸l (uf (~ (⊸r⋆-1⊸l Δ (uf ax) ax ∙ ⊸l refl (~ scut-unit _)))) refl))) 〉
+    ⊸r (⊸r (⊸r⋆ Δ (⊸l (uf (⊸r⋆-1 Δ (⊸l (uf ax) ax))) ax)))
+  qed≗
+
+scut⊸r-1 : {S : Stp} {Γ Δ : Cxt} {B C D : Fma}
+  → (f : S ∣ Γ ⊢ B)
+  → (g : just B ∣ Δ ⊢ C ⊸ D)
+  → scut f (⊸r-1 g) ≡ ⊸r-1 {Γ = Γ ++ Δ} (scut f g)
+scut⊸r-1 (base f refl refl) (⊸r g) = refl  
+scut⊸r-1 (base {Γ = Γ} f refl refl) (⊸c Δ₀ g g') =
+  cong (⊸c (lmap ` Γ ++ Δ₀) g) (scut⊸r-1 (base f refl refl) g')  
+scut⊸r-1 (uf f) g = cong uf (scut⊸r-1 f g)
+scut⊸r-1 (⊸r f) (⊸r g) = refl
+scut⊸r-1 {Γ = Γ} (⊸r f) (⊸c Δ₀ g g') =
+  cong (⊸c (Γ ++ Δ₀) g) (scut⊸r-1 (⊸r f) g')
+scut⊸r-1 {Γ = Γ} (⊸r f) (⊸l g g') = scut⊸r-1 (ccut Γ g f refl) g'
+scut⊸r-1 (⊸l f f') g = cong (⊸l f) (scut⊸r-1 f' g)
+scut⊸r-1 (⊸c Δ₀ f f') g = cong (⊸c Δ₀ f) (scut⊸r-1 f' g)
+
+scut⊸r⋆-1 : {S : Stp} {Γ Γ' : Cxt} (Δ : Cxt) {A C : Fma}
+  → (f : S ∣ Γ ⊢ A)
+  → (g : just A ∣ Γ' ⊢ [ Δ ∣ C ])
+  → scut f (⊸r⋆-1 Δ g) ≡ ⊸r⋆-1 {Γ = Γ ++ Γ'} Δ (scut f g)
+scut⊸r⋆-1 [] f g = refl
+scut⊸r⋆-1 {Γ = Γ}{Γ'} (A' ∷ Δ) f g =
+  trans (scut⊸r⋆-1 {Γ' = Γ' ++ A' ∷ []} Δ f (⊸r-1 g))
+        (cong (⊸r⋆-1 {Γ = Γ ++ Γ' ++ A' ∷ []} Δ) (scut⊸r-1 f g))
+
+cong⊸r⋆-1 : ∀{S}{Γ} Δ {C}{f g : S ∣ Γ ⊢ [ Δ ∣ C ]} → f ≗ g → ⊸r⋆-1 Δ f ≗ ⊸r⋆-1 Δ g
+cong⊸r⋆-1 [] p = p
+cong⊸r⋆-1 {Γ = Γ} (A ∷ Δ) p = cong⊸r⋆-1 {Γ = Γ ++ A ∷ []} Δ (cong⊸r-1 p)
+
+scut⊸r⋆⊸r⋆-1 : ∀{S}{Γ} Δ {C}(f : S ∣ Γ ++ Δ ⊢ C)
+  → scut (⊸r⋆ Δ f) (⊸r⋆-1 Δ ax) ≗ f
+scut⊸r⋆⊸r⋆-1 Δ f =
+  ≡-to-≗ (scut⊸r⋆-1 Δ (⊸r⋆ Δ f) ax)
+  ∙ (cong⊸r⋆-1 Δ (scut-unit2 _)
+  ∙ ≡-to-≗ (⊸r⋆-iso2 Δ f))
+
+
+ccut-base-eq : ∀{T Γ Δ₀ Δ₁ X Y}
+  → (f : nothing ∣ Γ ⊢b X) (g : T ∣ Δ₀ ++ X ∷ Δ₁ ⊢b Y)
+  → ccut (lmap ` Δ₀) (base f refl refl) (base g refl refl) refl ≡ base (ccut-b Δ₀ f g) refl refl
+ccut-base-eq {Δ₀ = Δ₀} {Δ₁} {X} f g rewrite cases++-lmap-refl ` Δ₀ (X ∷ Δ₁) = refl
+
+
 -- ====================================================================
 
 -- cmplt preserves equality
@@ -160,4 +247,29 @@ cmplt (base {Γ = Γ}{Δ} f eq eq2) = ⊸r⋆ Δ (base f eq eq2)
     ∙ uf (~
       (scut⊸r⋆ (lmap ` Γ)
         (base (scut-b ax-b ax-b) refl refl) (base f refl refl))))
+
+≐cmplt≗ (basescut {Γ = Γ} {Δ} {f = f} {g}) =
+  ⊸r⋆ass (lmap ` Γ) (lmap ` Δ) (base (scut-b f g) refl refl)
+  ∙ cong⊸r⋆ (lmap ` Γ) (~ (scut⊸r⋆ (lmap ` Δ) (base f refl refl) (base g refl refl)) ∙ ~ (scut⊸r⋆⊸l⋆ (lmap ` Γ)))
+  ∙ ~ (scut⊸r⋆ (lmap ` Γ) (⊸r⋆ (lmap ` Γ) (base f refl refl)) (⊸l⋆ (lmap ` Γ) (⊸r⋆ (lmap ` Δ) (base g refl refl))))
+  ∙ ~ cong-scut2 (⊸r⋆ (lmap ` Γ) (base f refl refl)) [ lmap ` Γ ∣cmplt]f
+≐cmplt≗ (baseccut {Γ = Γ} {Δ₀} {Δ₁} {X = X} {f = f} {g}) =
+  ⊸r⋆ass (lmap ` Δ₀) (lmap ` (Γ ++ Δ₁)) (base (ccut-b Δ₀ f g) refl refl)
+  ∙ cong⊸r⋆ (lmap ` Δ₀)
+      (⊸r⋆ass (lmap ` Γ) (lmap ` Δ₁) (base (ccut-b Δ₀ f g) refl refl)
+       ∙ cong⊸r⋆ (lmap ` Γ)
+           (cong⊸r⋆ (lmap ` Δ₁)
+              (~ (≡-to-≗ (ccut-base-eq f g))
+               ∙ ~ (cong-ccut1 (lmap ` Δ₀) (base g refl refl) refl (scut⊸r⋆⊸r⋆-1 (lmap ` Γ) (base f refl refl))))
+            ∙ ~ ccut⊸r⋆ (lmap ` Δ₀) (lmap ` Δ₁) (scut (⊸r⋆ (lmap ` Γ) (base f refl refl)) (⊸r⋆-1 (lmap ` Γ) ax)) _ refl refl
+            ∙ ~ (scut-unit2 (ccut (lmap ` Δ₀) (scut (⊸r⋆ (lmap ` Γ) (base f refl refl)) (⊸r⋆-1 (lmap ` Γ) ax)) (⊸r⋆ (lmap ` Δ₁) _) refl)))
+       ∙ ~ scut⊸r⋆ (lmap ` Γ) (⊸r (⊸r⋆ (lmap ` Δ₁) (base g refl refl))) (⊸l (scut (⊸r⋆ (lmap ` Γ) (base f refl refl)) (⊸r⋆-1 (lmap ` Γ) ax)) ax)
+       ∙ cong-scut2 (⊸r (⊸r⋆ (lmap ` Δ₁) (base g refl refl)))
+           (~ (ccut⊸r⋆ [] (lmap ` Γ) (⊸r⋆ (lmap ` Γ) (base f refl refl)) (⊸l (uf (⊸r⋆-1 (lmap ` Γ) ax)) ax) refl refl)
+            ∙ ~ scut-unit2 (ccut [] (⊸r⋆ (lmap ` Γ) (base f refl refl)) (⊸r⋆ (lmap ` Γ) (⊸l (uf (⊸r⋆-1 (lmap ` Γ) ax)) ax)) refl)
+            ∙ cong-scut1 {h = ⊸l (⊸r⋆ (lmap ` Γ) (base f refl refl)) ax} (~ cmplt-L⋆ (lmap ` Γ))) 
+       ∙ ~ scut⊸r⋆⊸l⋆ (lmap ` Δ₀)
+       ∙ ~ cong-scut1 (⊸r⋆ass (lmap ` Δ₀) (_ ∷ lmap ` Δ₁) (base g refl refl)))
+  ∙ ~ (scut⊸r⋆ (lmap ` Δ₀) (⊸r⋆ (lmap ` Δ₀ ++ _ ∷ lmap ` Δ₁) (base g refl refl)) (⊸l⋆ (lmap ` Δ₀) (scut (cmplt (L⋆ (lmap ` Γ))) (⊸l (⊸r⋆ (lmap ` Γ) (base f refl refl)) ax))))
+  ∙ ~ cong-scut2 (⊸r⋆ (lmap ` Δ₀ ++ _ ∷ lmap ` Δ₁) (base g refl refl))  [ lmap ` Δ₀ ∣cmplt]f
 

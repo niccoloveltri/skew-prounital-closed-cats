@@ -25,7 +25,7 @@ open import CutsCong
 
 -- ====================================================================
 
-
+{-
 scut⊸r-1 : {S : Stp} {Γ Δ : Cxt} {B C D : Fma}
   → (f : S ∣ Γ ⊢ B)
   → (g : just B ∣ Δ ⊢ C ⊸ D)
@@ -40,6 +40,7 @@ scut⊸r-1 {Γ = Γ} (⊸r f) (⊸c Δ₀ g g') =
 scut⊸r-1 {Γ = Γ} (⊸r f) (⊸l g g') = scut⊸r-1 (ccut Γ g f refl) g'
 scut⊸r-1 (⊸l f f') g = cong (⊸l f) (scut⊸r-1 f' g)
 scut⊸r-1 (⊸c Δ₀ f f') g = cong (⊸c Δ₀ f) (scut⊸r-1 f' g)
+-}
 
 ccut⊸r-1 : {S T : Stp} {Γ Δ : Cxt} (Δ₀ : Cxt) {Δ' : Cxt} {A B C : Fma} 
   → (f : S ∣ Γ ⊢ A) (g : T ∣ Δ ⊢ B ⊸ C) (eq : Δ ≡ Δ₀ ++ A ∷ Δ')
@@ -75,6 +76,7 @@ ccut⊸r-1 {S} _ {.(Γ ++ Δ₂)} {.(A ⊸ B₁)} {B} (⊸c Δ₀ f f₁) (⊸c 
 ccut⊸r-1 {S} {Γ = Γ₁} Δ₀ {.(Γ₀ ++ A ⊸ B₁ ∷ Γ ++ Δ₂)} {.x} {B} f (⊸c .(Δ₀ ++ x ∷ Γ₀) {Γ} {Δ₂} {A} {B₁} g g₁) refl | inj₂ (x ∷ Γ₀ , refl , refl)
   rewrite cases++-inj₂ (x ∷ Γ₀) Δ₀ (Γ ++ Δ₂ ++ B ∷ []) (A ⊸ B₁) = cong (⊸c (Δ₀ ++ asCxt S Γ₁ ++ Γ₀) g) (ccut⊸r-1 Δ₀ f g₁ refl)    
 
+{-
 scut⊸r⋆-1 : {S : Stp} {Γ Γ' : Cxt} (Δ : Cxt) {A C : Fma}
   → (f : S ∣ Γ ⊢ A)
   → (g : just A ∣ Γ' ⊢ [ Δ ∣ C ])
@@ -116,11 +118,12 @@ cmplt-L⋆ (B ∷ Δ) =
   ≗〈 ⊸r (⊸r (cong⊸r⋆ Δ (⊸l (uf (~ (⊸r⋆-1⊸l Δ (uf ax) ax ∙ ⊸l refl (~ scut-unit _)))) refl))) 〉
     ⊸r (⊸r (⊸r⋆ Δ (⊸l (uf (⊸r⋆-1 Δ (⊸l (uf ax) ax))) ax)))
   qed≗
-
+-}
 -- ====================================================================
 
 -- the function cmplt ∘ sound is ≗-related to ⊸r⋆
 
+{-
 ⊸l⋆ : ∀ Γ {Δ A C} (f : just A ∣ Δ ⊢ C)→ just [ Γ ∣ A ] ∣ Γ ++ Δ ⊢ C
 ⊸l⋆ [] f = f
 ⊸l⋆ (B ∷ Γ) f = ⊸l (uf ax) (⊸l⋆ Γ f)
@@ -143,6 +146,7 @@ scut⊸r⋆⊸l⋆ (_ ∷ Γ) {Γ' = Γ'} {f = f}{g} =
   → cmplt [ Γ ∣ f ]f ≗ ⊸r⋆ Γ (⊸l⋆ Γ (cmplt f))
 [ [] ∣cmplt]f = refl
 [ _ ∷ Γ ∣cmplt]f = ⊸r (⊸l refl [ Γ ∣cmplt]f ∙ ~ ⊸r⋆⊸l Γ _ _)
+-}
 
 cmpltsound : {S : Stp} → {Γ : Cxt} → {C : Fma} → (f : S ∣ Γ ⊢ C) → cmplt (sound f) ≗ ⊸r⋆ Γ f
 cmpltsound (base f eq eq2) = refl
