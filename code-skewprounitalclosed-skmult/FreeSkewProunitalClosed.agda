@@ -2,8 +2,7 @@
 
 open import SkMults
 
-module FreeSkewClosed where
---(M : SkMult) where
+module FreeSkewProunitalClosed where
 
 open import Data.Empty
 open import Data.Maybe renaming (map to mmap)
@@ -16,7 +15,7 @@ open ≡-Reasoning
 open import Utilities
 open import Formulae 
 
---open SkMult M
+-- Derivations in the categorical calculus
 
 infix 15 _⇒_
 infixl 20 _∘_
@@ -47,6 +46,8 @@ infix 20 [_∣_]f
 L⋆ : (Γ : Cxt) {B C : Fma} → just (B ⊸ C) ⇒ [ Γ ∣ B ] ⊸ [ Γ ∣ C ]
 L⋆ [] = id
 L⋆ (A ∷ Γ) = L ∘ L⋆ Γ
+
+-- Equivalence of derivations
 
 infix 15 _≐_
 infixl 20 _∙_
@@ -127,6 +128,7 @@ _ ≐〈 p 〉 relto q = relto (p ∙ q)
 _qed≐  :  ∀{S B} (f : S ⇒ B) → f ≐' f
 _qed≐ _ = relto refl
 
+-- Some derivable equalities
 
 ni2 : ∀{A B C} {e : nothing ⇒ A} {g : just B ⇒ C} 
   → g ∘ i e ≐ i e ∘ id ⊸ g

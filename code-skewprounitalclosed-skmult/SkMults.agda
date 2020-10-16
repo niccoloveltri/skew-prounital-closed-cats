@@ -2,6 +2,8 @@
 
 module SkMults where
 
+-- We assume the existence of a skew multicategory 
+
 open import Data.List
 open import Data.Maybe
 open import Relation.Binary.PropositionalEquality

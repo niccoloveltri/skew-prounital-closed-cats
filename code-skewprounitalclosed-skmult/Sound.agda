@@ -14,12 +14,10 @@ open import Relation.Binary.PropositionalEquality hiding (_≗_)
 open ≡-Reasoning
 open import Utilities
 open import Formulae 
-open import FreeSkewClosed 
+open import FreeSkewProunitalClosed 
 open import SeqCalc 
 
 -- ====================================================================
-
--- interpretation of sequents into morphisms
 
 [_∣id]f : ∀ Γ {C} → [ Γ ∣ id {C} ]f ≐ id
 [ [] ∣id]f = refl
@@ -164,9 +162,6 @@ sound (⊸c Δ₀ {Γ} f g) = [ Δ₀ ∣ L⋆ Γ ⊸ id ∘ i (sound f) ⊸ id 
     [ Γ ++ Δ ∣ (L⋆ Γ' ⊸ id) ∘ (i (sound f') ⊸ id) ∘ L⋆ Γ' ]f ∘
       (i (sound f) ∘ L⋆ Γ ∘ (id ⊸ sound g))
   ≐〈 ~ ass ∙ (~ ass ∘ refl) 〉
---    [ Γ ++ Δ ∣ (L⋆ Γ' ⊸ id) ∘ (i (sound f') ⊸ id) ∘ L⋆ Γ' ]f ∘ i (sound f)
---        ∘ L⋆ Γ ∘ id ⊸ sound g
---  ≐〈 ~ (≡-to-≐ [ Γ ∣ Δ ∣ass]f ) ∘ refl ∘ refl ∘ refl 〉
     [ Γ ∣ [ Δ ∣ (L⋆ Γ' ⊸ id) ∘ (i (sound f') ⊸ id) ∘ L⋆ Γ' ]f ]f ∘
       i (sound f)
         ∘ L⋆ Γ ∘  id ⊸ sound g
@@ -206,16 +201,13 @@ sound (⊸c Δ₀ {Γ} f g) = [ Δ₀ ∣ L⋆ Γ ⊸ id ∘ i (sound f) ⊸ id 
       (L⋆ Γ' ⊸ id) ∘ (i (sound f') ⊸ id) ∘ L⋆ Γ' ]f
       ∘ ([ Δ₀ ∣ (L⋆ Γ ⊸ id) ∘ (i (sound f) ⊸ id) ∘ L⋆ Γ ]f ∘ sound g)
   ≐〈 ~ ass 〉 
---    [ Δ₀ ++ A ⊸ B ∷ Γ ++ Δ₁ ∣ (L⋆ Γ' ⊸ id) ∘ (i (sound f') ⊸ id) ∘ L⋆ Γ' ]f
---      ∘ [ Δ₀ ∣ (L⋆ Γ ⊸ id) ∘ (i (sound f) ⊸ id) ∘ L⋆ Γ ]f ∘ sound g
---  ≐〈 ≡-to-≐ (sym [ Δ₀ ∣ _ ∷ Γ ++ Δ₁ ∣ass]f) ∘ refl ∘ refl 〉 
     [ Δ₀ ∣ id ⊸  [ Γ ++ Δ₁ ∣ (L⋆ Γ' ⊸ id) ∘ (i (sound f') ⊸ id) ∘ L⋆ Γ' ]f ]f
       ∘ [ Δ₀ ∣ (L⋆ Γ ⊸ id) ∘ (i (sound f) ⊸ id) ∘ L⋆ Γ ]f ∘ sound g
   ≐〈 ~ [ Δ₀ ∣∘]f ∙ [ Δ₀ ∣≐]f (~ ass ∙ (~ ass ∘ refl)) ∘ refl 〉 
     [ Δ₀ ∣ id ⊸  [ Γ ++ Δ₁ ∣ (L⋆ Γ' ⊸ id) ∘ (i (sound f') ⊸ id) ∘ L⋆ Γ' ]f 
       ∘ (L⋆ Γ ⊸ id) ∘ (i (sound f) ⊸ id) ∘ L⋆ Γ ]f ∘ sound g
   ≐〈 [ Δ₀ ∣≐]f (~ swap⊸ ∘ refl ∙ (ass ∙ (refl ∘
-       (~ swap⊸ ∙ (refl ∘ refl ⊸ refl)) ∙ ~ ass)) --≡-to-≐ (sym [ Γ ∣ Δ₁ ∣ass]f)
+       (~ swap⊸ ∙ (refl ∘ refl ⊸ refl)) ∙ ~ ass))
          ∘ refl) ∘ refl 〉 
     [ Δ₀ ∣ (L⋆ Γ ⊸ id) ∘ (i (sound f) ⊸ id) ∘
       (id ⊸ [ Γ ∣ [ Δ₁ ∣ (L⋆ Γ' ⊸ id) ∘ (i (sound f') ⊸ id) ∘ L⋆ Γ' ]f ]f)
@@ -451,67 +443,3 @@ sound (⊸c Δ₀ {Γ} f g) = [ Δ₀ ∣ L⋆ Γ ⊸ id ∘ i (sound f) ⊸ id 
   
 
 
-{-
-[_∣_] : Cxt → Fma → Fma
-[ [] ∣ C ] = C
-[ A ∷ Γ ∣ C ] = A ⊸ [ Γ ∣ C ]
-
-[_∣_]f : (Γ : Cxt) {B C : Fma} → B ⇒ C → [ Γ ∣ B ] ⇒ [ Γ ∣ C ]
-[ [] ∣ g ]f = g
-[ A ∷ Γ ∣ g ]f = id ⊸ [ Γ ∣ g ]f
-
-[_∣id]f : ∀ Γ {C} → [ Γ ∣ id {C} ]f ≐ id
-[ [] ∣id]f = refl
-[ A ∷ Γ ∣id]f = (refl ⊸ [ Γ ∣id]f) ∙ f⊸id
-
-[_∣∘]f : (Γ : Cxt) {B C D : Fma} → {f : B ⇒ C} {g : C ⇒ D} → [ Γ ∣ g ∘ f ]f ≐ [ Γ ∣ g ]f ∘ [ Γ ∣ f ]f
-[ [] ∣∘]f = refl
-[ A ∷ Γ ∣∘]f = (refl ⊸ [ Γ ∣∘]f) ∙ (rid ⊸ refl) ∙ f⊸∘
-
-[_∣≐]f : (Γ : Cxt) {B C : Fma} → {f g : B ⇒ C} → f ≐ g → [ Γ ∣ f ]f ≐ [ Γ ∣ g ]f
-[ [] ∣≐]f p = p
-[ A ∷ Γ ∣≐]f p = refl ⊸ [ Γ ∣≐]f p
-
-φ : (Γ Δ : Cxt) (C : Fma) → [ Γ ++ Δ ∣ C ] ≡ [ Γ ∣ [ Δ ∣ C ] ]
-φ [] Δ C = refl
-φ (A ∷ Γ) Δ C = cong (_⊸_ A) (φ Γ Δ C)
-
-{-# REWRITE φ #-}
-
-L⋆ : (Γ : Cxt) {B C : Fma} → B ⊸ C ⇒ [ Γ ∣ B ] ⊸ [ Γ ∣ C ]
-L⋆ [] = id
-L⋆ (A ∷ Γ) = L ∘ L⋆ Γ
-
--- soundness
-
-sound : {S : Stp} → {Γ : Cxt} → {A : Fma} → S ∣ Γ ⊢ A → t S ⇒ [ Γ ∣ A ]
-sound ax = id
-sound (uf f) = id ⊸ sound f ∘ j
-sound Ir = id
-sound (⊸r {S}{Γ}{A}{B} f) = sound f
-sound (Il f) = sound f
-sound (⊸l {Γ} f g) = i ∘ sound f ⊸ id ∘ L⋆ Γ ∘ id ⊸ sound g 
-
--- sound preserves equality
-
-≗sound≐ : ∀ {S Γ A} {f g : S ∣ Γ ⊢ A}
-  → f ≗ g → sound f ≐ sound g
-≗sound≐ refl = refl
-≗sound≐ (~ p) = ~ (≗sound≐ p)
-≗sound≐ (p ∙ p₁) = (≗sound≐ p) ∙ (≗sound≐ p₁)
-≗sound≐ (uf p) = refl ⊸ ≗sound≐ p ∘ refl
-≗sound≐ (⊸r p) = ≗sound≐ p
-≗sound≐ (Il p) = ≗sound≐ p
-≗sound≐ (⊸l p p₁) =
-  refl ∘ ≗sound≐ p ⊸ refl ∘ refl ∘ refl ⊸ ≗sound≐ p₁
-≗sound≐ axI = refl
-≗sound≐ ax⊸ =
-  (~ ijL)
-  ∙ (refl ∘ (~ lid) ⊸ refl ∘ refl)
-  ∙ rid
-  ∙ (refl ∘ ((~ f⊸id) ∘ refl) ⊸ refl ∘ rid ∘ (~ f⊸id))
-≗sound≐ ⊸ruf = refl
-≗sound≐ ⊸rIl = refl
-≗sound≐ ⊸r⊸l = refl
-
--}

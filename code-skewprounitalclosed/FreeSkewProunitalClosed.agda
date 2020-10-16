@@ -13,6 +13,9 @@ open ≡-Reasoning
 open import Utilities
 open import Formulae
 
+
+-- Derivations in the categorical calculus
+
 infix 15 _⇒_
 infixl 20 _∘_
 
@@ -23,6 +26,9 @@ data _⇒_ : Stp → Fma → Set where
   j : {A : Fma} → nothing ⇒ A ⊸ A
   i : {A B : Fma} → nothing ⇒ A → just (A ⊸ B) ⇒ B
   L : {A B C : Fma} → just (B ⊸ C) ⇒ (A ⊸ B) ⊸ (A ⊸ C)
+
+
+-- Equivalence of derivations
 
 infix 15 _≐_
 infixl 20 _∙_

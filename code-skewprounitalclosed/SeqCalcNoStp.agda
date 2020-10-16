@@ -17,7 +17,7 @@ open import SeqCalc
 
 -- =======================================================================
 
--- Presentation of the calculus w/o stoup
+-- Presentation of the sequent calculus w/o stoup
 
 infix 2 _⊢S_
 
@@ -29,7 +29,7 @@ data _⊢S_ : Cxt → Fma → Set where
               Γ ⊢S A → B ∷ Δ ⊢S C →
               A ⊸ B ∷ Γ ++ Δ ⊢S C
 
--- Equality of proofs 
+-- Equality of derivations
 
 data _≗S_ : {Γ : Cxt}{A : Fma} → Γ ⊢S A → Γ ⊢S A → Set where
   refl : ∀{Γ}{A}{f : Γ ⊢S A} → f ≗S f
@@ -69,7 +69,7 @@ _qed≗S _ = relto refl
 
 -- ====================================================================
 
--- Equivalence of the two presentations of the calculus
+-- Equivalence of the two presentations of the sequent calculus
 
 
 add-stp : ∀{Γ}{A} → Γ ⊢S A → nothing ∣ Γ ⊢ A

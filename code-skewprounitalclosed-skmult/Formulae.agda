@@ -3,7 +3,6 @@
 open import SkMults
 
 module Formulae where
---(M : SkMult) where
 
 open import Data.List
 open import Data.Empty
@@ -11,8 +10,6 @@ open import Data.Unit
 open import Data.Maybe
 open import Data.Bool
 open import Relation.Binary.PropositionalEquality hiding (_≗_)
-
---open SkMult M
 
 -- =======================================================================
 
@@ -35,6 +32,7 @@ not⊸ : Fma → Set
 not⊸ (` X) = ⊤
 not⊸ (A ⊸ B) = ⊥
 
+-- Interpretation of pairs of a list and a formula into formulae
 
 [_∣_] : List Fma → Fma → Fma
 [ [] ∣ C ] = C

@@ -36,7 +36,7 @@ subst-cxt : {S : Stp} → {Γ Γ' : Cxt} → {A : Fma} →
       Γ ≡ Γ' → S ∣ Γ ⊢ A → S ∣ Γ' ⊢ A 
 subst-cxt refl f = f
 
--- -- equality of proofs 
+-- -- equality of derivations
 
 infixl 20 _∙_
 
@@ -133,7 +133,7 @@ cong⊸r-1 ⊸r⊸l = refl
 -- ====================================================================
 
 -- Admissibility of cut
--- -- (There are two kinds of cut: stoup ccut and context cut.)
+-- -- (There are two kinds of cut: stoup cut and context cut.)
 
 mutual 
   scut : {S : Stp} → {Γ Δ : Cxt} → {A C : Fma} → 

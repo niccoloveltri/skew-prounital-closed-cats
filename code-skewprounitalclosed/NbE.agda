@@ -85,6 +85,11 @@ psub (⊸e {Γ = Γ} {Δ} t u) σ with is++S {Γ}{Δ} σ
 
 -- Equational theory of terms
 
+-- -- NB: This relation is equivalent to the ≑ in HeredSubs.agda.  In
+-- -- NbE is convenient to work with simultaneous substitutions (terms
+-- -- in Sub Γ Δ) and having a beta conversion expressed in terms of
+-- -- them.
+
 data _≑_ : {S : Stp}{Γ : Cxt}{A : Fma} → S ∣ Γ ⊢ A → S ∣ Γ ⊢ A → Set where
   refl : ∀{S}{Γ}{A}{t : S ∣ Γ ⊢ A} → t ≑ t
   ~_ : ∀{S}{Γ}{A}{t u : S ∣ Γ ⊢ A} → t ≑ u → u ≑ t

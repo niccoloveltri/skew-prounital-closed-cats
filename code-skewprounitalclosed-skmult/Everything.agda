@@ -2,11 +2,13 @@
 
 module Everything where
 
+open import SkMults
+
 open import Utilities
 
 open import Formulae
 
-open import FreeSkewClosed
+open import FreeSkewProunitalClosed
 
 open import SeqCalc
 

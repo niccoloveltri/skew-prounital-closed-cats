@@ -2,7 +2,7 @@
 
 open import SkMults
 
-module SoundComplete where --(M : SkMult) where
+module SoundComplete where 
 
 open import Data.Empty
 open import Data.Maybe renaming (map to mmap)
@@ -14,13 +14,14 @@ open import Relation.Binary.PropositionalEquality hiding (_≗_)
 open ≡-Reasoning
 open import Utilities
 open import Formulae
-open import FreeSkewClosed
+open import FreeSkewProunitalClosed
 open import SeqCalc
 open import Sound
 open import Complete 
 open import MulticatLaws
 
---open SkMult M
+-- ∀ f. sound (cmplt f) ≐ f
+
 
 sem-scut : {S : Stp} → {Γ Δ : Cxt} → {A C : Fma} → 
            S ⇒ [ Γ ∣ A ] → just A ⇒ [ Δ ∣ C ] → S ⇒ [ Γ ++ Δ ∣ C ]

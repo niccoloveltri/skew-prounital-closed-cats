@@ -20,6 +20,8 @@ open import MulticatLaws
 
 -- ====================================================================
 
+-- ∀ f. cmplt (sound f) ≗ ⊸r⋆ f
+
 ⊸r⋆ : {S : Stp} {Γ : Cxt} (Δ : Cxt) {C : Fma} → S ∣ Γ ++ Δ ⊢ C → S ∣ Γ ⊢ [ Δ ∣ C ]
 ⊸r⋆ [] f = f
 ⊸r⋆ (A ∷ Δ) f = ⊸r (⊸r⋆ Δ f)

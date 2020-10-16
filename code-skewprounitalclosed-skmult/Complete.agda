@@ -2,7 +2,7 @@
 
 open import SkMults
 
-module Complete where --(M : SkMult) where
+module Complete where 
 
 open import Data.Empty
 open import Data.Maybe renaming (map to mmap)
@@ -14,13 +14,12 @@ open import Relation.Binary.PropositionalEquality hiding (_≗_)
 open ≡-Reasoning
 open import Utilities
 open import Formulae 
-open import FreeSkewClosed
+open import FreeSkewProunitalClosed
 open import SeqCalc
 open import MulticatLaws
 open import CutsCong
 open import Sound
 
---open SkMult M
 
 ⊸r⋆ : {S : Stp} {Γ : Cxt} (Δ : Cxt) {C : Fma} → S ∣ Γ ++ Δ ⊢ C → S ∣ Γ ⊢ [ Δ ∣ C ]
 ⊸r⋆ [] f = f

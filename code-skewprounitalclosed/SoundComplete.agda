@@ -18,6 +18,9 @@ open import Sound
 open import Complete
 open import MulticatLaws
 
+-- ∀ f. sound (cmplt f) ≐ f
+
+
 sem-scut : {S : Stp} → {Γ Δ : Cxt} → {A C : Fma} → 
            S ⇒ [ Γ ∣ A ] → just A ⇒ [ Δ ∣ C ] → S ⇒ [ Γ ++ Δ ∣ C ]
 sem-scut {Γ = Γ} f g = [ Γ ∣ g ]f ∘ f

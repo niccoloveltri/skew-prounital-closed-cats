@@ -34,7 +34,7 @@ uip {_} {.a} {a} {refl} {refl} = refl
 -- We used Agda rewriting feature to turn the propositional equalities
 -- ++ass and ++ru into judgemental equalities. This is not necessary,
 -- but it makes much easier expressing and proving e.g. the
--- generalized multicategory laws in MulticatLaws.agda.
+-- skew multicategory laws in MulticatLaws.agda.
 
 inj∷ : {X : Set} → {x y : X} → {xs ys : List X} → 
            x ∷ xs ≡ y ∷ ys → x ≡ y × xs ≡ ys

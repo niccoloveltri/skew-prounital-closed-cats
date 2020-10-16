@@ -2,7 +2,7 @@
 
 open import SkMults
 
-module MulticatLaws where --(M : SkMult) where
+module MulticatLaws where 
 
 open import Data.Empty
 open import Data.Maybe renaming (map to mmap)
@@ -14,9 +14,12 @@ open import Relation.Binary.PropositionalEquality hiding (_≗_)
 open ≡-Reasoning
 open import Utilities
 open import Formulae
-open import FreeSkewClosed
+open import FreeSkewProunitalClosed
 open import SeqCalc
 open import CutsCong
+
+-- Equations of skew multicategories: associativity of cuts, parallel
+-- cuts commute, cuts commute with uf.
 
 scut-par-ccut-b2 : ∀{S T Γ₁ Γ₂ Δ₀ Δ' X Y Z}
       → (f₁ : T ∣ Γ₁ ⊢b X)(f₂ : S ∣ Γ₂ ⊢ ` Y)(g : just X ∣ Δ₀ ++ Y ∷ Δ' ⊢b Z)

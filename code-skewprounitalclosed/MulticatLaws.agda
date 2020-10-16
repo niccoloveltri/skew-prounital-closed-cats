@@ -15,6 +15,9 @@ open import Formulae
 open import FreeSkewProunitalClosed
 open import SeqCalc
 
+-- Equations of skew multicategories: unitality of ax wrt. cuts,
+-- associativity of cuts, parallel cuts commute, cuts commute with uf.
+
 scut-ax : {S : Stp} {Γ : Cxt} {A : Fma}
   → (f : S ∣ Γ ⊢ A)
   → scut f ax ≡ f

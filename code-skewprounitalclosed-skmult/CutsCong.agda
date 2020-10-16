@@ -3,7 +3,6 @@
 open import SkMults
 
 module CutsCong where
---(M : SkMult) where
 
 open import Data.Empty
 open import Data.Maybe renaming (map to mmap)
@@ -17,9 +16,9 @@ open ≡-Reasoning
 open import Utilities
 open import Formulae 
 open import SeqCalc
---open import FreeSkewClosed
 
-
+-- Unitality of ax wrt. cut and proof that cut rules preserve ≗
+-- (defined by a bug mutual induction)
 
 scut-unit : {Γ : Cxt}{A C : Fma}(f : just A ∣ Γ ⊢ C) → scut ax f ≗ f
 scut-unit2 : {S : Stp}{Γ : Cxt}{A : Fma}(f : S ∣ Γ ⊢ A) → scut f ax ≗ f
