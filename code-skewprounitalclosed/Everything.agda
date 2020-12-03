@@ -28,3 +28,7 @@ open import HeredSubs
 open import Compare
 
 open import NbE
+
+open import UniversalProperty
+
+open import Combinators
