@@ -24,3 +24,5 @@ open import SoundComplete
 open import CompleteSound
 
 
+open import SeqCalcVar
+open import Focusing

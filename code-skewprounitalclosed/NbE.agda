@@ -530,7 +530,7 @@ eq-sound-eval sγ (⊸e {Γ = Γ} {Δ} {t = t}{t'}{u}{u'} eq eq₁)
   with is⟦++⟧ {Γ₁ = Γ}{Δ} sγ
 ... | (Λ₁ , Λ₂ , refl , γ₁ , γ₂ , refl) =
   trans (cong (eval t γ₁) (eq-sound-eval (refl , γ₂) eq₁))
-    (cong (λ x → x (eval u' (refl , γ₂))) (eq-sound-eval γ₁ eq))
+    (cong (λ x → x {Λ₂} (eval u' (refl , γ₂))) (eq-sound-eval γ₁ eq))
 eq-sound-eval sγ (beta {Γ = Γ} {Δ}) with is⟦++⟧ {Γ₁ = Γ}{Δ} sγ
 eq-sound-eval .(γ₁ ⟦++⟧ γ₂) (beta {Γ = Γ} {Δ} {t = t} {u}) | Λ₁ , Λ₂ , refl , γ₁ , γ₂ , refl with evalSC++ (idS Γ) (u ∷ []) γ₁ γ₂
 ... | p rewrite ⟦++⟧Cis⟦++⟧C {Δ}{[]}{Λ₂}{[]} γ₂ refl =
