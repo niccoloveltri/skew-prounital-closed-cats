@@ -3,6 +3,7 @@ module UniversalProperty where
 open import Data.Maybe
 open import Relation.Binary.PropositionalEquality
 open import Formulae
+open import Utilities
 open import FreeSkewProunitalClosed
 
 -- The type of skew prounital closed categories
@@ -110,16 +111,32 @@ record StrPClFun (ℂ 𝔻 : SkPClCat) : Set where
       → Eq 𝔻 (subst₂ (Hom 𝔻) (cong just FLo) FLo (F₁ (Lo₁ ℂ f g)))
                (Lo₁ 𝔻 (F₁ f) (F₁ g))
                
-    Fj : ∀{A} → Eq 𝔻 (F₁ (jj ℂ {A})) (subst (Hom 𝔻 nothing) (sym FLo) (jj 𝔻))
+    Fj : ∀{A} → Eq 𝔻 (subst₂ (Hom 𝔻) refl FLo (F₁ (jj ℂ {A}))) (jj 𝔻)
     Fi : ∀{A B} {e : Hom ℂ nothing A}
-      → Eq 𝔻 (F₁ (ii ℂ {A}{B} e))
-              (subst (λ x → Hom 𝔻 (just x) (F₀ B)) (sym FLo) (ii 𝔻 (F₁ e))) 
+      → Eq 𝔻 (subst₂ (Hom 𝔻) (cong just FLo) refl (F₁ (ii ℂ {A}{B} e)))
+               (ii 𝔻 (F₁ e))              
     FL : ∀{A B C}
-      → Eq 𝔻 (F₁ (LL ℂ {A}{B}{C}))
-              (subst₂ (Hom 𝔻) (cong just (sym FLo))
-                               (sym (trans FLo (cong₂ (Lo₀ 𝔻) FLo FLo)))
-                               (LL 𝔻))
+      → Eq 𝔻 (subst₂ (Hom 𝔻) (cong just FLo) (trans FLo (cong₂ (Lo₀ 𝔻) FLo FLo))
+                                (F₁ (LL ℂ {A}{B}{C})))
+              (LL 𝔻)
 open StrPClFun
+
+mapEq : {A B : Set}{f g : A → B}
+  → (∀ x → f x ≡ g x)
+  → ∀ x → map f x ≡ map g x
+mapEq p nothing = refl
+mapEq p (just x) = cong just (p x)
+
+-- equality of strict prounital closed functors
+--(we do not show it here, but this entails propositional equality of
+-- these functors)
+record EqFun {ℂ 𝔻 : SkPClCat} (F G : StrPClFun ℂ 𝔻) : Set where
+  field
+    Eq₀ : ∀ B → F₀ F B ≡ F₀ G B
+    Eq₁ : ∀{S B} (f : ℂ .Hom S B)
+      → Eq 𝔻 (subst₂ (Hom 𝔻) (mapEq Eq₀ S) (Eq₀ B) (F₁ F f))
+               (F₁ G f)
+open EqFun
 
 -- existence of a strict prounital closed functor between FSkPCl and
 -- any other skew prounital closed category D with γ : At → 𝔻
@@ -173,6 +190,9 @@ module Exists (𝔻 : SkPClCat) (γ : At → Obj 𝔻) where
         ; FL = Refl 𝔻
         }
 
+
+
+
 -- uniqueness of such strict prounital closed functor
 module Unique (𝔻 : SkPClCat)
               (γ : At → Obj 𝔻)
@@ -182,36 +202,135 @@ module Unique (𝔻 : SkPClCat)
 
   open Exists 𝔻 γ
 
+  EqRefl : ∀{S B} {f g : Hom 𝔻 S B}
+    → f ≡ g  → Eq 𝔻 f g
+  EqRefl refl = Refl 𝔻
+
+  EqSubst : ∀{S S' B B'} {f g : Hom 𝔻 S B}
+    → (p : S ≡ S') (q : B ≡ B')
+    → Eq 𝔻 f g 
+    → Eq 𝔻 (subst₂ (Hom 𝔻) p q f) (subst₂ (Hom 𝔻) p q g)
+  EqSubst refl refl r = r
+
+  EqSubst₂ : ∀{S S' B B'} {f : Hom 𝔻 S B}
+    → (p p' : S ≡ S') (q q' : B ≡ B')
+    → Eq 𝔻 (subst₂ (Hom 𝔻) p q f) (subst₂ (Hom 𝔻) p' q' f)
+  EqSubst₂ refl refl refl refl = Refl 𝔻
+
+  EqSubstId : ∀{B B'} (q : B ≡ B')
+    → Eq 𝔻 (subst₂ (Hom 𝔻) (cong just q) q (Id 𝔻)) (Id 𝔻)
+  EqSubstId refl = Refl 𝔻
+
+  EqSubstjj : ∀{B B'} (q : B ≡ B')
+    → Eq 𝔻 (subst₂ (Hom 𝔻) refl (cong₂ (Lo₀ 𝔻) q q) (jj 𝔻)) (jj 𝔻)
+  EqSubstjj refl = Refl 𝔻
+
+  EqSubstii : ∀{A A' B B'} (p : A ≡ A') (q : B ≡ B')
+    → (f : Hom 𝔻 nothing A)
+    → Eq 𝔻 (subst₂ (Hom 𝔻) (cong just (cong₂ (Lo₀ 𝔻) p q)) q (ii 𝔻 f))
+             (ii 𝔻 (subst₂ (Hom 𝔻) refl p f))
+  EqSubstii refl refl f = Refl 𝔻
+
+  EqSubstLL : ∀{A A' B B' C C'} (p : A ≡ A') (q : B ≡ B') (r : C ≡ C')
+    → Eq 𝔻 (subst₂ (Hom 𝔻) (cong just (cong₂ (Lo₀ 𝔻) q r)) (cong₂ (Lo₀ 𝔻) (cong₂ (Lo₀ 𝔻) p q) (cong₂ (Lo₀ 𝔻) p r)) (LL 𝔻)) (LL 𝔻)
+  EqSubstLL refl refl refl = Refl 𝔻
+
+  EqSubstComp : ∀{S S' B B' C C'} {f : Hom 𝔻 S B}{g : Hom 𝔻 (just B) C}
+    → (p : S ≡ S') (q : B ≡ B') (r : C ≡ C')
+    → Eq 𝔻 (subst₂ (Hom 𝔻) p r (Comp 𝔻 g f))
+            (Comp 𝔻 (subst₂ (Hom 𝔻) (cong just q) r g)
+                     (subst₂ (Hom 𝔻) p q f))
+  EqSubstComp refl refl refl = Refl 𝔻
+
+  EqSubstLo : ∀{A A' B B' C C' D D'} {f : Hom 𝔻 (just B) A}{g : Hom 𝔻 (just C) D}
+    → (p : A ≡ A') (q : B ≡ B') (r : C ≡ C') (s : D ≡ D')
+    → Eq 𝔻 (subst₂ (Hom 𝔻) (cong just (cong₂ (Lo₀ 𝔻) p r)) (cong₂ (Lo₀ 𝔻) q s) (Lo₁ 𝔻 f g))
+             (Lo₁ 𝔻 (subst₂ (Hom 𝔻) (cong just q) p f) (subst₂ (Hom 𝔻) (cong just r) s g))
+  EqSubstLo refl refl refl refl = Refl 𝔻
+
   𝔽Eq₀ : (B : Fma) → F₀ G B ≡ 𝔽₀ B
   𝔽Eq₀ (` X) = p
   𝔽Eq₀ (B ⊸ C) = trans (FLo G) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ B) (𝔽Eq₀ C))
 
-{-
+  𝔽Eq₁ : ∀{S B} (f : S ⇒ B) → Eq 𝔻 (subst₂ (Hom 𝔻) (mapEq 𝔽Eq₀ S) (𝔽Eq₀ B) (F₁ G f)) (𝔽₁ f)
+  𝔽Eq₁ (id {B}) =
+    Trans 𝔻 (EqSubst (mapEq 𝔽Eq₀ (just B)) (𝔽Eq₀ B) (FId G))
+             (EqSubstId (𝔽Eq₀ B))
+  𝔽Eq₁ (_∘_ {S}{B}{C} f g) =
+    Trans 𝔻 (Trans 𝔻 (EqSubst (mapEq 𝔽Eq₀ S) (𝔽Eq₀ C) (FComp G))
+                       (EqSubstComp (mapEq 𝔽Eq₀ S) (𝔽Eq₀ B) (𝔽Eq₀ C)))
+             (CompEq 𝔻 (𝔽Eq₁ f) (𝔽Eq₁ g))
+  𝔽Eq₁ (_⊸_ {A}{B}{C}{D} f g) =
+    Trans 𝔻 (Trans 𝔻 (Trans 𝔻 (subst (Eq 𝔻 _) (subst₂subst₂ (Hom 𝔻) (cong just (FLo G)) r (FLo G) r' _)
+                                                               (EqSubst₂ q (trans (cong just (FLo G)) r) q' (trans (FLo G) r')))
+                                 (EqSubst _ _ (FLo₁ G)))
+                       (EqSubstLo (𝔽Eq₀ A) (𝔽Eq₀ B) (𝔽Eq₀ C) (𝔽Eq₀ D)))
+             (LoEq 𝔻 (𝔽Eq₁ f) (𝔽Eq₁ g))
+    where
+      q = cong just (trans (FLo G) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ C)))
+      q' = trans (FLo G) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ B) (𝔽Eq₀ D))
+      r = cong just (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ C))
+      r' = cong₂ (Lo₀ 𝔻) (𝔽Eq₀ B) (𝔽Eq₀ D)
+  𝔽Eq₁ (j {A}) =
+    subst (λ x → Eq 𝔻 x (jj 𝔻)) (sym (subst₂subst₂ (Hom 𝔻) refl refl (FLo G) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ A)) (F₁ G j)))
+          (Trans 𝔻 (EqSubst refl (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ A)) (Fj G))
+                    (EqSubstjj (𝔽Eq₀ A)))
+  𝔽Eq₁ (i {A}{B} f) =
+    Trans 𝔻 (Trans 𝔻 (Trans 𝔻 (subst (Eq 𝔻 _) (subst₂subst₂ (Hom 𝔻) (cong just (FLo G)) (cong just (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ B))) refl (𝔽Eq₀ B) _)
+                                                  (EqSubst₂ (cong just (trans (FLo G) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ B))))
+                                                            (trans (cong just (FLo G)) (cong just (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ B))))
+                                                            (𝔽Eq₀ B)
+                                                            (𝔽Eq₀ B)))
+                                 (EqSubst (cong just (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ B))) (𝔽Eq₀ B) (Fi G)))
+                       (EqSubstii (𝔽Eq₀ A) (𝔽Eq₀ B) (F₁ G f)))
+             (iCong 𝔻 (𝔽Eq₁ f))
+  𝔽Eq₁ (L {A}{B}{C}) =
+    subst (λ x → Eq 𝔻 x (LL 𝔻))
+      (trans (sym (subst₂subst₂ (Hom 𝔻) (cong just (FLo G))
+                     (cong just (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ B) (𝔽Eq₀ C))) (FLo G)
+                     (cong₂ (Lo₀ 𝔻) (trans (FLo G) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ B)))
+                      (trans (FLo G) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ C))))
+                     _))
+             (cong (λ x → subst₂ (Hom 𝔻) x
+                                  (trans (FLo G)
+                                         (cong₂ (Lo₀ 𝔻) (trans (FLo G) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ B)))
+                                                         (trans (FLo G) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ C)))))
+                                  (F₁ G L)) (trans-cong (FLo G))))
+      (Trans 𝔻 (Trans 𝔻 (subst₂ (Eq 𝔻) (subst₂subst₂ (Hom 𝔻) (cong just (FLo G))
+                                                                 (cong just (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ B) (𝔽Eq₀ C)))
+                                                                 (FLo G)
+                                                                 (cong₂ (Lo₀ 𝔻) (trans (FLo G) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ B))) (trans (FLo G) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ C)))) _)
+                                          (subst₂subst₂ (Hom 𝔻) (cong just (FLo G))
+                                                                 (cong just (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ B) (𝔽Eq₀ C)))
+                                                                 (trans (FLo G) (cong₂ (Lo₀ 𝔻) (FLo G) (FLo G)))
+                                                                 (cong₂ (Lo₀ 𝔻) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ B)) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ C))) _)
+                                          (EqSubst₂ (trans (cong just (FLo G)) (cong just (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ B) (𝔽Eq₀ C))))
+                                                    (trans (cong just (FLo G)) (cong just (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ B) (𝔽Eq₀ C))))
+                                                    (trans (FLo G) (cong₂ (Lo₀ 𝔻) (trans (FLo G) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ B))) (trans (FLo G) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ C)))))
+                                                    (trans (trans (FLo G) (cong₂ (Lo₀ 𝔻) (FLo G) (FLo G))) (cong₂ (Lo₀ 𝔻) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ B)) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ C))))))
+                          (EqSubst (cong just (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ B) (𝔽Eq₀ C)))
+                                   (cong₂ (Lo₀ 𝔻) (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ B))
+                                                   (cong₂ (Lo₀ 𝔻) (𝔽Eq₀ A) (𝔽Eq₀ C))) (FL G)))
+               (EqSubstLL (𝔽Eq₀ A) (𝔽Eq₀ B) (𝔽Eq₀ C)))
 
-NB: Notice that we have only proved an equality between the action on
-objects of the two functors, which is generally not enough to conclude
-that G is equal to 𝔽. But in the current case it is enough: one can
-show that the two action on morphisms are also equal (more precisely
-related by Eq 𝔻). We do not give a formal Agda proof of this fact,
-since this requires a lot of boring lemmata involving subst and
-subst₂...
+  𝔽-uniq : EqFun G 𝔽
+  𝔽-uniq = record { Eq₀ = 𝔽Eq₀ ; Eq₁ = 𝔽Eq₁ }
 
-Instead we give an informal sketch of the proof, where we write =D for
-Eq 𝔻:
+-- the predicate characterizing the free skew prounital closed
+-- category
+record FreeSkPClCat (ℂ : SkPClCat) : Set₁ where
+  field
+    η : At → Obj ℂ
+    F : ∀ 𝔻 (γ : At → Obj 𝔻) → StrPClFun ℂ 𝔻
+    comm : ∀ 𝔻 γ {X : At} → F₀ (F 𝔻 γ) (η X) ≡ γ X
+    uniq : ∀ 𝔻 γ (G : StrPClFun ℂ 𝔻) →
+      ({X : At} → F₀ G (η X) ≡ γ X) → EqFun G (F 𝔻 γ)
 
-Given f : S ⇒ B, show that F₁ G f =D 𝔽₁ f
-(which type-checks since F₀ G B = 𝔽₀ B for all objects B, that we
-treat as a judgemental equality)
-
-- case f = id_B
-  F₁ G id_B =D id_{F₀ G B} = id_{𝔽₀ B} = 𝔽₁ id_B 
-
-- case f = g ∘ f
-  F₁ G (g ∘ f) =D F₁ G g ∘ F₁ G f =D 𝔽₁ g ∘ 𝔽₁ f = 𝔽₁ (g ∘ f)
-
-- case f = j_B
-  F₁ G j_B =D j_{F₀ G B} = j_{𝔽₀ B} = 𝔽₁ j_B
-
-etc.
--}
-
+-- Wrapping up: FSkPCl satisfies this universal property
+FSkPCl-univ : FreeSkPClCat FSkPCl
+FSkPCl-univ = record
+  { η = `
+  ; F = Exists.𝔽
+  ; comm = λ _ _ → refl
+  ; uniq = Unique.𝔽-uniq
+  }

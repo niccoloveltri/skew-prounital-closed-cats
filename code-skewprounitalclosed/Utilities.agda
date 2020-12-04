@@ -12,6 +12,29 @@ open import Relation.Binary.PropositionalEquality
 
 {-# BUILTIN REWRITE _≡_ #-}
 
+subst₂refl : {X Y : Set} (P : X → Y → Set)
+  → {x : X} {y y' : Y}
+  → (q : y ≡ y')
+  → (z : P x y)
+  → subst₂ P refl q z ≡ subst (P x) q z
+subst₂refl P refl z = refl    
+
+subst₂subst₂ : {X Y : Set} (P : X → Y → Set)
+  → {x x' x'' : X} {y y' y'' : Y}
+  → (p : x ≡ x') (p' : x' ≡ x'')
+  → (q : y ≡ y') (q' : y' ≡ y'')
+  → (z : P x y)
+  → subst₂ P (trans p p') (trans q q') z
+           ≡ subst₂ P p' q' (subst₂ P p q z)
+subst₂subst₂ P refl refl refl refl z = refl
+
+cong₂cong₂ : {X Y Z : Set} (f : X → Y → Z)
+  → {x x' x'' : X} {y y' y'' : Y}
+  → (p : x ≡ x') (p' : x' ≡ x'')
+  → (q : y ≡ y') (q' : y' ≡ y'')
+  → cong₂ f (trans p p') (trans q q') ≡ trans (cong₂ f p q) (cong₂ f p' q')
+cong₂cong₂ f refl refl refl refl = refl
+
 -- uniqueness of identity proofs
 
 uip : {A : Set} → {a a' : A} → {p p' : a ≡ a'} → p ≡ p' 
